@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.home.HomeFragment">
+
+  <com.google.android.material.appbar.AppBarLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+      >
+     <com.google.android.material.appbar.CollapsingToolbarLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         app:contentScrim="@color/yellow_main"
+         app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+         app:title="Home"
+         app:expandedTitleTextAppearance="@style/expendedBarTextStyle">
+
+         <androidx.constraintlayout.widget.ConstraintLayout
+             android:layout_width="match_parent"
+             android:layout_height="300dp"
+             android:background="@drawable/custom_app_bar_background">
+
+             <TextView
+                 android:id="@+id/home_date"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:inputType="date"
+                 android:text="Date"
+                 android:textColor="@color/white"
+                 android:textSize="18sp"
+                 android:gravity="center"
+                 android:layout_marginTop="?attr/actionBarSize"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toTopOf="parent" />
+
+             <ProgressBar
+                 android:id="@+id/progressBar"
+                 android:layout_width="120dp"
+                 android:layout_height="120dp"
+                 android:indeterminateOnly="false"
+                 android:progress="0"
+                 android:progressDrawable="@drawable/circle"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toBottomOf="@+id/home_date" />
+
+             <TextView
+                 android:id="@+id/home_remaining"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="0"
+                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                 android:textColor="@color/white"
+                 app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+                 app:layout_constraintEnd_toEndOf="@+id/progressBar"
+                 app:layout_constraintStart_toStartOf="@+id/progressBar"
+                 app:layout_constraintTop_toTopOf="@+id/progressBar" />
+             <LinearLayout
+                 android:id="@+id/linearLayout"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:orientation="horizontal"
+                 app:layout_constraintBottom_toBottomOf="parent"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 app:layout_constraintStart_toStartOf="parent">
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginVertical="8dp"
+                     android:layout_weight="1"
+                     android:orientation="vertical">
+
+                     <TextView
+                         android:id="@+id/home_cal_consumed"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="100"
+                         android:textColor="@color/white"
+                         android:textSize="18sp" />
+
+                     <TextView
+                         android:id="@+id/comsumed"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="Consumed"
+                         android:textColor="@color/white"
+                         android:textSize="18dp" />
+                 </LinearLayout>
+
+                 <View
+                     android:layout_width="1dp"
+                     android:layout_height="40dp"
+                     android:layout_marginVertical="10dp"
+                     android:background="@color/white" />
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginVertical="8dp"
+                     android:layout_weight="1"
+                     android:orientation="vertical">
+
+                     <TextView
+                         android:id="@+id/home_cal_burn"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="100"
+                         android:textColor="@color/white"
+                         android:textSize="18sp" />
+
+                     <TextView
+                         android:id="@+id/burn"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="Burn"
+                         android:textColor="@color/white"
+                         android:textSize="18dp" />
+                 </LinearLayout>
+
+
+                 <View
+                     android:layout_width="1dp"
+                     android:layout_height="40dp"
+                     android:layout_marginVertical="10dp"
+                     android:background="@color/white" />
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginVertical="8dp"
+                     android:layout_weight="1"
+                     android:orientation="vertical">
+
+                     <TextView
+                         android:id="@+id/home_budget"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="100"
+                         android:textColor="@color/white"
+                         android:textSize="18sp" />
+
+                     <TextView
+                         android:id="@+id/budget"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:text="Budget"
+                         android:textColor="@color/white"
+                         android:textSize="18dp" />
+                 </LinearLayout>
+
+             </LinearLayout>
+
+             <TextView
+                 android:id="@+id/remaining"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Remaining"
+                 android:textColor="@color/white"
+                 android:textSize="20dp"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+             <TextView
+                 android:id="@+id/bmi"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="BMI"
+                 android:textColor="@color/white"
+                 android:textSize="14dp"
+                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                 app:layout_constraintEnd_toStartOf="@+id/home_bmi"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toTopOf="@+id/progressBar"
+                 app:layout_constraintVertical_bias="0.3" />
+
+             <TextView
+                 android:id="@+id/home_bmi"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="0"
+                 android:textColor="@color/white"
+                 android:textSize="14dp"
+                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                 app:layout_constraintEnd_toStartOf="@+id/progressBar"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toBottomOf="@+id/home_date"
+                 app:layout_constraintVertical_bias="0.3" />
+
+             <TextView
+                 android:id="@+id/range"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Range"
+                 android:textColor="@color/white"
+                 android:textSize="14dp"
+                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                 app:layout_constraintEnd_toStartOf="@+id/home_bmi"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintTop_toTopOf="@+id/progressBar"
+                 app:layout_constraintVertical_bias="0.65" />
+
+             <TextView
+                 android:id="@+id/home_range"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="-"
+                 android:textColor="@color/white"
+                 android:textSize="14dp"
+                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                 app:layout_constraintEnd_toStartOf="@+id/progressBar"
+                 app:layout_constraintStart_toEndOf="@+id/range"
+                 app:layout_constraintTop_toBottomOf="@+id/home_date"
+                 app:layout_constraintVertical_bias="0.65" />
+
+             <Button
+                 android:id="@+id/home_workout"
+                 android:layout_width="110dp"
+                 android:layout_height="wrap_content"
+                 android:backgroundTint="@color/orange"
+                 android:textColor="@color/white"
+                 android:text="Workout Plan"
+                 android:textSize="14dp"
+                 app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 app:layout_constraintStart_toEndOf="@+id/progressBar"
+                 app:layout_constraintTop_toTopOf="@+id/progressBar" />
+
+         </androidx.constraintlayout.widget.ConstraintLayout>
+         <androidx.appcompat.widget.Toolbar
+             android:layout_width="match_parent"
+             android:layout_height="?attr/actionBarSize"
+             android:background="@color/yellow_main" />
+     </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+  </com.google.android.material.appbar.AppBarLayout>
+
+   <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+       android:id="@+id/refresh_layout"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/recycler_view"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
+
+   </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

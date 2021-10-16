@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CaloriesTracker</string>
+    <string name="calories_tracker">Calories Tracker</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_me">Me</string>
+</resources>
