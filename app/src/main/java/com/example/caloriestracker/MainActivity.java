@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
             image.setImageURI(uri);
+            Log.d("qwert",uri.toString());
             selectedImagePath = getPath(getApplicationContext(), uri);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
             connectServer();
@@ -134,10 +135,13 @@ public class MainActivity extends AppCompatActivity {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
+                Log.d("docId",docId);
+                Log.d("typr",type);
 
                 Uri contentUri = null;
                 if ("image".equals(type)) {
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    Log.d("contentUri",contentUri.toString());
                 } else if ("video".equals(type)) {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 } else if ("audio".equals(type)) {
