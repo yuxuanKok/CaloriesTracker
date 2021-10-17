@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             image.setImageURI(uri);
             selectedImagePath = getPath(getApplicationContext(), uri);
             Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-
+            connectServer();
         }
 
     }
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public void connectServer(View v) {
+    public void connectServer() {
 
         String postUrl= "http://"+"192.168.68.109"+":"+"5000"+"/";
 
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
         RequestBody postBodyImage = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
+                .addFormDataPart("image", selectedImagePath, RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
                 .build();
 
         TextView responseText = binding.textname;
