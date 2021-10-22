@@ -1,6 +1,7 @@
 package com.example.caloriestracker;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -10,6 +11,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -92,14 +94,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            image.setImageURI(uri);
-            Log.d("qwert",uri.toString());
-            selectedImagePath = getPath(getApplicationContext(), uri);
-            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-            connectServer();
-        }
+        Uri uri = data.getData();
+        ImageView image = new ImageView(this);
+        image.setImageURI(uri);
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this).
+                        setMessage("Message above the image").
+                        setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).setView(image);
+        builder.create().show();
+//        if (resultCode == RESULT_OK && data != null) {
+//            Uri uri = data.getData();
+//            image.setImageURI(uri);
+//            Log.d("qwert",uri.toString());
+//            selectedImagePath = getPath(getApplicationContext(), uri);
+//            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+//            connectServer();
+//        }
 
     }
 
@@ -206,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public void connectServer() {
 
-        String postUrl= "http://"+"192.168.68.109"+":"+"5000"+"/";
+        String postUrl= "http://"+"192.168.0.105"+":"+"5000"+"/";
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -229,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
     void postRequest(String postUrl, RequestBody postBody) {
 
-        OkHttpClient client = new OkHttpClient().newBuilder() .connectTimeout(30, TimeUnit.SECONDS) .readTimeout(30, TimeUnit.SECONDS) .writeTimeout(30, TimeUnit.SECONDS) .build();
+        OkHttpClient client = new OkHttpClient().newBuilder() .connectTimeout(50, TimeUnit.SECONDS) .readTimeout(50, TimeUnit.SECONDS) .writeTimeout(50, TimeUnit.SECONDS) .build();
 
         Request request = new Request.Builder()
                 .url(postUrl)
