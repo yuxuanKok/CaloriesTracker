@@ -33,7 +33,7 @@ public class WorkoutStep extends AppCompatActivity {
     private FirebaseFirestore fStore;
     private String userID,collection, doc;
     private int intensity, type;
-    private double BMR,totalBurn;
+    private double BMR;
     private TextView step_title;
     private RecyclerView workoutRecyclerView;
     private WorkoutRecyclerAdapter workoutRecyclerAdapter;
@@ -146,12 +146,11 @@ public class WorkoutStep extends AppCompatActivity {
         workout_done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                double totalBurn=0;
                 for(Workout x: workoutList){
                     totalBurn += BMR * x.getMET()/24.0 * (x.getTime()/60.0);
                 }
                 Toast.makeText(WorkoutStep.this,String.valueOf(totalBurn),Toast.LENGTH_SHORT).show();
-
             }
         });
     }
