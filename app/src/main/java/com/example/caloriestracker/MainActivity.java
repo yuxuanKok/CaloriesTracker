@@ -3,6 +3,7 @@ package com.example.caloriestracker;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -79,11 +80,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImagePicker.with(MainActivity.this).start();
-//                Intent intent = new Intent();
-//                intent.setType("*/*");
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                startActivityForResult(intent, 0);
+                if(isStoragePermissionGranted()){
+                    ImagePicker.with(MainActivity.this).start();
+                }
             }
         });
 
@@ -116,16 +115,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 //                        .setView(image);
 //        builder.create().show();
         if (resultCode == RESULT_OK && data != null) {
-
-            if(isStoragePermissionGranted()){
-                Uri uri = data.getData();
-                image.setImageURI(uri);
-                Log.d("qwert",uri.toString());
-                selectedImagePath = getPath(getApplicationContext(), uri);
-                Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-                Log.d("selectedImagePath", selectedImagePath);
-                connectServer();
-            }
+            Uri uri = data.getData();
+            image.setImageURI(uri);
+            selectedImagePath = getPath(getApplicationContext(), uri);
+            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+            connectServer();
 
         }
 
@@ -163,13 +157,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
-                Log.d("docId",docId);
-                Log.d("typr",type);
 
                 Uri contentUri = null;
                 if ("image".equals(type)) {
                     contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                    Log.d("contentUri",contentUri.toString());
                 } else if ("video".equals(type)) {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 } else if ("audio".equals(type)) {
@@ -322,14 +313,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 Log.v("permissionD","Permission is granted");
                 return true;
             } else {
 
                 Log.v("permissionD","Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         }
