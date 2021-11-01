@@ -1,17 +1,17 @@
 package com.example.caloriestracker;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 
+import android.Manifest;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -25,7 +25,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,13 +47,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private ActivityMainBinding binding;
     private FloatingActionButton camera;
     ImageView image;
     String selectedImagePath;
-    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+    //public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,28 +93,41 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Uri uri = data.getData();
-        ImageView image = new ImageView(this);
-        image.setImageURI(uri);
+//        Uri uri = data.getData();
+//        ImageView image = new ImageView(this);
+//        image.setImageURI(uri);
+//
+//        AlertDialog.Builder builder =
+//                new AlertDialog.Builder(this)
+//                        .setTitle("Confirm Food")
+//                        .setMessage("Is this the correct food?")
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//
+//                            }
+//                        })
+//                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//
+//                            }
+//                        })
+//                        .setView(image);
+//        builder.create().show();
+        if (resultCode == RESULT_OK && data != null) {
 
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(this).
-                        setMessage("Message above the image").
-                        setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+            if(isStoragePermissionGranted()){
+                Uri uri = data.getData();
+                image.setImageURI(uri);
+                Log.d("qwert",uri.toString());
+                selectedImagePath = getPath(getApplicationContext(), uri);
+                Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+                Log.d("selectedImagePath", selectedImagePath);
+                connectServer();
+            }
 
-                            }
-                        }).setView(image);
-        builder.create().show();
-//        if (resultCode == RESULT_OK && data != null) {
-//            Uri uri = data.getData();
-//            image.setImageURI(uri);
-//            Log.d("qwert",uri.toString());
-//            selectedImagePath = getPath(getApplicationContext(), uri);
-//            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-//            connectServer();
-//        }
+        }
 
     }
 
@@ -222,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public void connectServer() {
 
-        String postUrl= "http://"+"192.168.0.105"+":"+"5000"+"/";
+        String postUrl= "http://"+"192.168.68.103"+":"+"5000"+"/";
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -287,24 +299,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-                for (int i = 0; i < permissions.length; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        switch (requestCode) {
+//            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+//                for (int i = 0; i < permissions.length; i++) {
+//                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+//
+//
+//                        System.out.println("Permissions --> " + "Permission Granted: " + permissions[i]);
+//                    } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+//                        System.out.println("Permissions --> " + "Permission Denied: " + permissions[i]);
+//                    }
+//                }
+//            }
+//            break;
+//            default: {
+//                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//            }
+//        }
+//    }
 
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("permissionD","Permission is granted");
+                return true;
+            } else {
 
-                        System.out.println("Permissions --> " + "Permission Granted: " + permissions[i]);
-                    } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                        System.out.println("Permissions --> " + "Permission Denied: " + permissions[i]);
-                    }
-                }
-            }
-            break;
-            default: {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                Log.v("permissionD","Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
             }
         }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("permissionD","Permission is granted auto");
+            return true;
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.v("permissionD","Permission: "+permissions[0]+ "was "+grantResults[0]);
+            //resume tasks needing this permission
+        }
+    }
+
 }
