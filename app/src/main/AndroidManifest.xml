@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CaloriesTracker"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         >
         <activity android:name=".WorkoutStep"></activity>
         <activity android:name=".WorkoutPlan" />

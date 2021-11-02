@@ -1,16 +1,7 @@
 package com.example.caloriestracker;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +17,16 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.caloriestracker.databinding.ActivityMainBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -52,8 +50,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private ActivityMainBinding binding;
     private FloatingActionButton camera;
-    ImageView image;
+    //ImageView image;
     String selectedImagePath;
+    final Context context = this;
     //public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
     @Override
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         camera = binding.floatingButton;
-        image = binding.image;
+        //image = binding.image;
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,11 +115,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 //        builder.create().show();
         if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
-            image.setImageURI(uri);
-            selectedImagePath = getPath(getApplicationContext(), uri);
-            Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-            connectServer();
+            ///////////////////
+            // custom dialog
+            final Dialog dialog = new Dialog(context);
+            dialog.setContentView(R.layout.custom_dialog);
+            dialog.setTitle("Confirm Food");
 
+            // set the custom dialog components - text, image and button
+            //TextView text = (TextView) dialog.findViewById(R.id.text);
+            //text.setText("Android custom dialog example!");
+            ImageView image = (ImageView) dialog.findViewById(R.id.dialog_imageview);
+            image.setImageURI(uri);
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
+            // if button is clicked, close the custom dialog
+            dialogButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+            ///////////////////
+//            image.setImageURI(uri);
+           // selectedImagePath = getPath(getApplicationContext(), uri);
+           // Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
+            //connectServer();
         }
 
     }
@@ -240,8 +261,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 .addFormDataPart("image", selectedImagePath, RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
                 .build();
 
-        TextView responseText = binding.textname;
-        responseText.setText("Please wait ...");
+//        TextView responseText = binding.textname;
+//        responseText.setText("Please wait ...");
 
         postRequest(postUrl, postBodyImage);
     }
@@ -265,8 +286,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = binding.textname;
-                        responseText.setText("Failed to Connect to Server: "+e);
+//                        TextView responseText = binding.textname;
+//                        responseText.setText("Failed to Connect to Server: "+e);
                     }
                 });
             }
@@ -277,12 +298,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView responseText = binding.textname;
-                        try {
-                            responseText.setText(response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                       // TextView responseText = binding.textname;
+//                        try {
+//                            responseText.setText(response.body().string());
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
                     }
                 });
             }
