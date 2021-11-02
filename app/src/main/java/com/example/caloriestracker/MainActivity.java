@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,8 +53,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private FloatingActionButton camera;
     //ImageView image;
     String selectedImagePath;
+    TextView textView;
     final Context context = this;
-    //public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         camera = binding.floatingButton;
-        //image = binding.image;
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,41 +91,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        Uri uri = data.getData();
-//        ImageView image = new ImageView(this);
-//        image.setImageURI(uri);
-//
-//        AlertDialog.Builder builder =
-//                new AlertDialog.Builder(this)
-//                        .setTitle("Confirm Food")
-//                        .setMessage("Is this the correct food?")
-//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//
-//                            }
-//                        })
-//                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//
-//                            }
-//                        })
-//                        .setView(image);
-//        builder.create().show();
         if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
-            ///////////////////
+            selectedImagePath = getPath(getApplicationContext(), uri);
+
             // custom dialog
             final Dialog dialog = new Dialog(context);
             dialog.setContentView(R.layout.custom_dialog);
-            dialog.setTitle("Confirm Food");
 
-            // set the custom dialog components - text, image and button
-            //TextView text = (TextView) dialog.findViewById(R.id.text);
-            //text.setText("Android custom dialog example!");
+            // set the custom dialog components - image and button
             ImageView image = (ImageView) dialog.findViewById(R.id.dialog_imageview);
             image.setImageURI(uri);
+
+            textView = (TextView) dialog.findViewById(R.id.textView2);
 
             Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
             // if button is clicked, close the custom dialog
@@ -135,13 +113,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     dialog.dismiss();
                 }
             });
-
+            connectServer();
             dialog.show();
-            ///////////////////
-//            image.setImageURI(uri);
-           // selectedImagePath = getPath(getApplicationContext(), uri);
-           // Toast.makeText(getApplicationContext(), selectedImagePath, Toast.LENGTH_LONG).show();
-            //connectServer();
         }
 
     }
@@ -261,8 +234,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 .addFormDataPart("image", selectedImagePath, RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
                 .build();
 
-//        TextView responseText = binding.textname;
+//        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //        responseText.setText("Please wait ...");
+        textView.setText("Please wait ...");
 
         postRequest(postUrl, postBodyImage);
     }
@@ -286,8 +260,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        TextView responseText = binding.textname;
+//                        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //                        responseText.setText("Failed to Connect to Server: "+e);
+                        textView.setText("Failed to Connect to Server: "+e);
                     }
                 });
             }
@@ -298,39 +273,54 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       // TextView responseText = binding.textname;
-//                        try {
-//                            responseText.setText(response.body().string());
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
+                        //TextView responseText = dialog.findViewById(R.id.dialog_text);
+                        try {
+                            //responseText.setText(response.body().string());
+                            String foodName="";
+                            switch (response.body().string()){
+                                case "1":
+                                    foodName="Bah Kut Teh";
+                                    break;
+                                case "2":
+                                    foodName="Cendol";
+                                    break;
+                                case "3":
+                                    foodName="Char Kway Teow";
+                                    break;
+                                case "4":
+                                    foodName="Curry Puff";
+                                    break;
+                                case "5":
+                                    foodName="Fried Rice";
+                                    break;
+                                case "6":
+                                    foodName="Laksa";
+                                    break;
+                                case "7":
+                                    foodName="Otak-otak";
+                                    break;
+                                case "8":
+                                    foodName="Roti Canai";
+                                    break;
+                                case "9":
+                                    foodName="Roti Tisu";
+                                    break;
+                                case "10":
+                                    foodName="Chicken Satay";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            textView.setText(foodName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             }
         });
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        switch (requestCode) {
-//            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
-//                for (int i = 0; i < permissions.length; i++) {
-//                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-//
-//
-//                        System.out.println("Permissions --> " + "Permission Granted: " + permissions[i]);
-//                    } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-//                        System.out.println("Permissions --> " + "Permission Denied: " + permissions[i]);
-//                    }
-//                }
-//            }
-//            break;
-//            default: {
-//                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//            }
-//        }
-//    }
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
