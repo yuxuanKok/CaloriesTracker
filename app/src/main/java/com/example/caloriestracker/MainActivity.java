@@ -36,6 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -275,43 +276,57 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     public void run() {
                         //TextView responseText = dialog.findViewById(R.id.dialog_text);
                         try {
-                            //responseText.setText(response.body().string());
-                            String foodName="";
-                            switch (response.body().string()){
-                                case "1":
-                                    foodName="Bah Kut Teh";
-                                    break;
-                                case "2":
-                                    foodName="Cendol";
-                                    break;
-                                case "3":
-                                    foodName="Char Kway Teow";
-                                    break;
-                                case "4":
-                                    foodName="Curry Puff";
-                                    break;
-                                case "5":
-                                    foodName="Fried Rice";
-                                    break;
-                                case "6":
-                                    foodName="Laksa";
-                                    break;
-                                case "7":
-                                    foodName="Otak-otak";
-                                    break;
-                                case "8":
-                                    foodName="Roti Canai";
-                                    break;
-                                case "9":
-                                    foodName="Roti Tisu";
-                                    break;
-                                case "10":
-                                    foodName="Chicken Satay";
-                                    break;
-                                default:
-                                    break;
+                            //StringBuilder foodName= new StringBuilder();
+                            String output = response.body().string().replace("(", "").replace(")","");
+                            String[] elements = output.split(",");
+                            ArrayList<String> foods= new ArrayList<>();
+                            for (int i = 0; i<elements.length;i++){
+                                //foodName.append(elements[i]);
+
+                                switch (elements[i].trim()){
+                                    case "1":
+                                        foods.add("Bah Kut Teh");
+                                        break;
+                                    case "2":
+                                        foods.add("Cendol");
+                                        break;
+                                    case "3":
+                                        foods.add("Char Kway Teow");
+                                        break;
+                                    case "4":
+                                        foods.add("Curry Puff");
+                                        break;
+                                    case "5":
+                                        foods.add("Fried Rice");
+                                        break;
+                                    case "6":
+                                        foods.add("Laksa");
+                                        break;
+                                    case "7":
+                                        foods.add("Otak-otak");
+                                        break;
+                                    case "8":
+                                        foods.add("Roti Canai");
+                                        break;
+                                    case "9":
+                                        foods.add("Roti Tisu");
+                                        break;
+                                    case "10":
+                                        foods.add("Chicken Satay");
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
-                            textView.setText(foodName);
+                            //responseText.setText(response.body().string());
+                            //textView.setText(foodName.toString());
+
+                            //textView.setText();
+
+
+
+
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
