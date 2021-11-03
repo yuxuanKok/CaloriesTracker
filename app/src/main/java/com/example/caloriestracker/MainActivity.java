@@ -2,6 +2,7 @@ package com.example.caloriestracker;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +42,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -61,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     RecyclerView recyclerView ;
     DialogRecyclerAdapter dialogRecyclerAdapter;
     final Context context = this;
+    ArrayList<String> foods= new ArrayList<>();
+    //private ArrayList<String> currentSelectedItems = new ArrayList<>();
+    //ArrayList<String> items ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,10 +119,24 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             recyclerView = (RecyclerView) dialog.findViewById(R.id.dialog_recyclerView);
 
             Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
+            ////////////////////////////
+//            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, new DialogRecyclerAdapter.OnItemCheckListener() {
+//                @Override
+//                public void onItemCheck(String string) {
+//                    currentSelectedItems.add(string);
+//                }
+//
+//                @Override
+//                public void onItemUncheck(String string) {
+//                    currentSelectedItems.remove(string);
+//                }
+//            });
+            ///////////////////////////////////////////////
             // if button is clicked, close the custom dialog
             dialogButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Toast.makeText(MainActivity.this, currentSelectedItems.size(), Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 }
             });
@@ -287,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         try {
                             String output = response.body().string().replace("(", "").replace(")","");
                             String[] elements = output.split(",");
-                            ArrayList<String> foods= new ArrayList<>();
 
                             for (int i = 0; i<elements.length;i++){
 
@@ -311,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                         foods.add("Laksa");
                                         break;
                                     case "7":
-                                        foods.add("Otak-otak");
+                                        foods.add("Otak Otak");
                                         break;
                                     case "8":
                                         foods.add("Roti Canai");
