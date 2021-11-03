@@ -17,6 +17,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +29,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.caloriestracker.databinding.ActivityMainBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     //ImageView image;
     String selectedImagePath;
     TextView textView;
+    RecyclerView recyclerView ;
+    DialogRecyclerAdapter dialogRecyclerAdapter;
     final Context context = this;
 
     @Override
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             image.setImageURI(uri);
 
             textView = (TextView) dialog.findViewById(R.id.textView2);
+            recyclerView = (RecyclerView) dialog.findViewById(R.id.dialog_recyclerView);
 
             Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
             // if button is clicked, close the custom dialog
@@ -115,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
             });
             connectServer();
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.show();
         }
 
@@ -238,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 //        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //        responseText.setText("Please wait ...");
         textView.setText("Please wait ...");
+        textView.setVisibility(View.VISIBLE);
 
         postRequest(postUrl, postBodyImage);
     }
@@ -264,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 //                        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //                        responseText.setText("Failed to Connect to Server: "+e);
                         textView.setText("Failed to Connect to Server: "+e);
+                        textView.setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -274,14 +283,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //TextView responseText = dialog.findViewById(R.id.dialog_text);
+
                         try {
-                            //StringBuilder foodName= new StringBuilder();
                             String output = response.body().string().replace("(", "").replace(")","");
                             String[] elements = output.split(",");
                             ArrayList<String> foods= new ArrayList<>();
+
                             for (int i = 0; i<elements.length;i++){
-                                //foodName.append(elements[i]);
 
                                 switch (elements[i].trim()){
                                     case "1":
@@ -318,14 +326,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                         break;
                                 }
                             }
-                            //responseText.setText(response.body().string());
-                            //textView.setText(foodName.toString());
 
+                            textView.setVisibility(View.INVISIBLE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, MainActivity.this);
+                            recyclerView.setAdapter(dialogRecyclerAdapter);
                             //textView.setText();
-
-
-
-
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -335,7 +342,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
     }
-
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
