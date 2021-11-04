@@ -166,9 +166,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             connectServer();
             image = new ImageView(this);
             image.setImageURI(uri);
-
-
-
+            
 
 //            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 //            dialog.show();
@@ -331,10 +329,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             String output = response.body().string().replace("(", "").replace(")","");
                             String[] elements = output.split(",");
                             foodDetails=new ArrayList<>();
-                            Food food = new Food();
+
 
                             for (int i = 0; i<elements.length;i++){
-
+                                Food food = new Food();
                                 switch (elements[i].trim()){
                                     case "1":
                                         food.setFoodName("Bah Kut Teh");
@@ -373,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 foodDetails.add(food);
                             }
 
-                            ArrayList<Food> tempList = (ArrayList<Food>)foodDetails.clone();
+                            ArrayList<Food> tempList = foodDetails;
                             for (int i = 0; i < tempList.size(); i++) {
                                 for (int j = i+1; j < tempList.size(); j++) {
                                     // compare list.get(i) and list.get(j)
@@ -409,8 +407,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    for(Food item : foodsCheck){
-
+                                    Toast.makeText(MainActivity.this,foodsCheck.get(0).getFoodName()+", "+foodsCheck.get(0).getQty(),
+                                            Toast.LENGTH_SHORT).show();
+//                                    for(Food item : foodsCheck){
+//
 //                                        fStore.collection("nutrition").document(item.getFoodName())
 //                                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
 //                                            @Override
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 //                                                        Toast.makeText(MainActivity.this,"Fail to get nutrition",Toast.LENGTH_SHORT).show();
 //                                                    }
 //                                                });
-                                    }
+//                                    }
                                 }
                             });
 
@@ -435,6 +435,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 }
                             });
                             AlertDialog dialog = builderSingle.create();
+                            //dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                             dialog.show();
 //
 //
