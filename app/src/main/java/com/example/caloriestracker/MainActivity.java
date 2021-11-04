@@ -72,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private ActivityMainBinding binding;
     private FloatingActionButton camera;
     String selectedImagePath;
-    ArrayList<String> foods= new ArrayList<>();
+    //ArrayList<String> foods= new ArrayList<>();
+    ArrayList<Food> foodDetails = new ArrayList<>();
+    ArrayList<Food> foodsCheck = new ArrayList<>();
     AlertDialog.Builder builderSingle ;
     ImageView image ;
     private ProgressBar main_loading;
@@ -288,11 +290,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image", selectedImagePath, RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
                 .build();
-
-//        TextView responseText = dialog.findViewById(R.id.dialog_text);
-//        responseText.setText("Please wait ...");
-//        textView.setText("Please wait ...");
-//        textView.setVisibility(View.VISIBLE);
         main_loading.setVisibility(View.VISIBLE);
 
         postRequest(postUrl, postBodyImage);
@@ -317,10 +314,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        TextView responseText = dialog.findViewById(R.id.dialog_text);
-//                        responseText.setText("Failed to Connect to Server: "+e);
-//                        textView.setText("Failed to Connect to Server: "+e);
-//                        textView.setVisibility(View.VISIBLE);
                         main_loading.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this,"Failed to Connect to Server: "+e,Toast.LENGTH_SHORT).show();
                     }
@@ -337,70 +330,78 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         try {
                             String output = response.body().string().replace("(", "").replace(")","");
                             String[] elements = output.split(",");
-                            foods=new ArrayList<>();
+                            foodDetails=new ArrayList<>();
+                            Food food = new Food();
 
                             for (int i = 0; i<elements.length;i++){
 
                                 switch (elements[i].trim()){
                                     case "1":
-                                        foods.add("Bah Kut Teh");
+                                        food.setFoodName("Bah Kut Teh");
                                         break;
                                     case "2":
-                                        foods.add("Cendol");
+                                        food.setFoodName("Cendol");
                                         break;
                                     case "3":
-                                        foods.add("Char Kway Teow");
+                                        food.setFoodName("Char Kway Teow");
                                         break;
                                     case "4":
-                                        foods.add("Curry Puff");
+                                        food.setFoodName("Curry Puff");
                                         break;
                                     case "5":
-                                        foods.add("Fried Rice");
+                                        food.setFoodName("Fried Rice");
                                         break;
                                     case "6":
-                                        foods.add("Laksa");
+                                        food.setFoodName("Laksa");
                                         break;
                                     case "7":
-                                        foods.add("Otak Otak");
+                                        food.setFoodName("Otak Otak");
                                         break;
                                     case "8":
-                                        foods.add("Roti Canai");
+                                        food.setFoodName("Roti Canai");
                                         break;
                                     case "9":
-                                        foods.add("Roti Tisu");
+                                        food.setFoodName("Roti Tisu");
                                         break;
                                     case "10":
-                                        foods.add("Chicken Satay");
+                                        food.setFoodName("Chicken Satay");
                                         break;
                                     default:
                                         break;
                                 }
+                                food.setQty(1);
+                                foodDetails.add(food);
                             }
 
-//                            textView.setVisibility(View.INVISIBLE);
-//                            recyclerView.setVisibility(View.VISIBLE);
-//                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-//                            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, MainActivity.this);
-//                            recyclerView.setAdapter(dialogRecyclerAdapter);
+                            ArrayList<Food> tempList = (ArrayList<Food>)foodDetails.clone();
+                            for (int i = 0; i < tempList.size(); i++) {
+                                for (int j = i+1; j < tempList.size(); j++) {
+                                    // compare list.get(i) and list.get(j)
+                                    if(tempList.get(i).getFoodName()==tempList.get(j).getFoodName()){
+                                        foodDetails.get(i).setQty(foodDetails.get(i).getQty()+1);
+                                        foodDetails.remove(j);
+                                    }
+                                }
+                            }
 
                             main_loading.setVisibility(View.INVISIBLE);
                             builderSingle = new AlertDialog.Builder(MainActivity.this);
                             builderSingle.setTitle("Confirm Food");
                             builderSingle.setView(image);
 
-                            String[] arr = new String[foods.size()];
-                            for(int i=0 ; i< foods.size();i++){
-                                arr[i] = foods.get(i);
+                            String[] arr = new String[foodDetails.size()];
+                            for(int i=0 ; i< foodDetails.size();i++){
+                                arr[i] = foodDetails.get(i).getFoodName();
                             }
-                            foods = new ArrayList<>();
+
                             builderSingle.setMultiChoiceItems(arr, null, new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                     if(isChecked){
-                                        foods.add(arr[which]);
+                                        foodsCheck.add(foodDetails.get(which));
                                     }
                                     else {
-                                        foods.remove(arr[which]);
+                                        foodsCheck.remove(foodDetails.get(which));
                                     }
                                 }
                             });
@@ -408,23 +409,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    for(String item : foods){
-                                        fStore.collection("nutrition").document()
-                                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    for(Food item : foodsCheck){
 
-                                            }
-                                        })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(MainActivity.this,"Fail to get nutrition",Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
+//                                        fStore.collection("nutrition").document(item.getFoodName())
+//                                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                                            @Override
+//                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//
+//                                            }
+//                                        })
+//                                                .addOnFailureListener(new OnFailureListener() {
+//                                                    @Override
+//                                                    public void onFailure(@NonNull Exception e) {
+//                                                        Toast.makeText(MainActivity.this,"Fail to get nutrition",Toast.LENGTH_SHORT).show();
+//                                                    }
+//                                                });
                                     }
-
-
                                 }
                             });
 
