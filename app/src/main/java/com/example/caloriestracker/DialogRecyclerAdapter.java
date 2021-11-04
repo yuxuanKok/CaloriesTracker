@@ -23,6 +23,7 @@ public class DialogRecyclerAdapter extends RecyclerView.Adapter<DialogRecyclerAd
 //        void onItemUncheck(String string);
 //    }
 
+
     public DialogRecyclerAdapter(ArrayList<String> list, Context context) {
         this.list = list;
         this.context = context;

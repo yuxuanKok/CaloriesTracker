@@ -1,10 +1,12 @@
 package com.example.caloriestracker;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,12 +21,17 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
@@ -36,11 +43,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.caloriestracker.databinding.ActivityMainBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,15 +71,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private ActivityMainBinding binding;
     private FloatingActionButton camera;
-    //ImageView image;
     String selectedImagePath;
-    TextView textView;
-    RecyclerView recyclerView ;
-    DialogRecyclerAdapter dialogRecyclerAdapter;
-    final Context context = this;
     ArrayList<String> foods= new ArrayList<>();
-    //private ArrayList<String> currentSelectedItems = new ArrayList<>();
-    //ArrayList<String> items ;
+    AlertDialog.Builder builderSingle ;
+    ImageView image ;
+    private ProgressBar main_loading;
+    String userID;
+    FirebaseAuth fAuth;
+    FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
             }
         });
+        main_loading = binding.mainLoading;
+        fAuth=FirebaseAuth.getInstance();
+        fStore=FirebaseFirestore.getInstance();
 
     }
 
@@ -107,42 +122,54 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Uri uri = data.getData();
             selectedImagePath = getPath(getApplicationContext(), uri);
 
-            // custom dialog
-            final Dialog dialog = new Dialog(context);
-            dialog.setContentView(R.layout.custom_dialog);
 
-            // set the custom dialog components - image and button
-            ImageView image = (ImageView) dialog.findViewById(R.id.dialog_imageview);
-            image.setImageURI(uri);
-
-            textView = (TextView) dialog.findViewById(R.id.textView2);
-            recyclerView = (RecyclerView) dialog.findViewById(R.id.dialog_recyclerView);
-
-            Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
-            ////////////////////////////
-//            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, new DialogRecyclerAdapter.OnItemCheckListener() {
-//                @Override
-//                public void onItemCheck(String string) {
-//                    currentSelectedItems.add(string);
-//                }
+//            // custom dialog
+//            final Dialog dialog = new Dialog(context);
+//            dialog.setContentView(R.layout.custom_dialog);
 //
+//            // set the custom dialog components - image and button
+//            ImageView image = (ImageView) dialog.findViewById(R.id.dialog_imageview);
+//            image.setImageURI(uri);
+//
+//            textView = (TextView) dialog.findViewById(R.id.textView2);
+//            recyclerView = (RecyclerView) dialog.findViewById(R.id.dialog_recyclerView);
+//
+//            Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
+//            ////////////////////////////
+////            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, new DialogRecyclerAdapter.OnItemCheckListener() {
+////                @Override
+////                public void onItemCheck(String string) {
+////                    currentSelectedItems.add(string);
+////                }
+////
+////                @Override
+////                public void onItemUncheck(String string) {
+////                    currentSelectedItems.remove(string);
+////                }
+////            });
+//            ///////////////////////////////////////////////
+//            // if button is clicked, close the custom dialog
+//            dialogButton.setOnClickListener(new View.OnClickListener() {
 //                @Override
-//                public void onItemUncheck(String string) {
-//                    currentSelectedItems.remove(string);
+//                public void onClick(View v) {
+////                    Intent intent = new Intent(MainActivity.this,FoodDetails.class);
+////                    Bundle args = new Bundle();
+////                    args.putSerializable("ARRAYLIST",(Serializable)foods);
+////                    intent.putExtra("BUNDLE",args);
+////                    startActivity(intent);
+//
+//                    dialog.dismiss();
 //                }
 //            });
-            ///////////////////////////////////////////////
-            // if button is clicked, close the custom dialog
-            dialogButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Toast.makeText(MainActivity.this, currentSelectedItems.size(), Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                }
-            });
             connectServer();
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.show();
+            image = new ImageView(this);
+            image.setImageURI(uri);
+
+
+
+
+//            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            dialog.show();
         }
 
     }
@@ -264,8 +291,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 //        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //        responseText.setText("Please wait ...");
-        textView.setText("Please wait ...");
-        textView.setVisibility(View.VISIBLE);
+//        textView.setText("Please wait ...");
+//        textView.setVisibility(View.VISIBLE);
+        main_loading.setVisibility(View.VISIBLE);
 
         postRequest(postUrl, postBodyImage);
     }
@@ -291,8 +319,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     public void run() {
 //                        TextView responseText = dialog.findViewById(R.id.dialog_text);
 //                        responseText.setText("Failed to Connect to Server: "+e);
-                        textView.setText("Failed to Connect to Server: "+e);
-                        textView.setVisibility(View.VISIBLE);
+//                        textView.setText("Failed to Connect to Server: "+e);
+//                        textView.setVisibility(View.VISIBLE);
+                        main_loading.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MainActivity.this,"Failed to Connect to Server: "+e,Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -307,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         try {
                             String output = response.body().string().replace("(", "").replace(")","");
                             String[] elements = output.split(",");
+                            foods=new ArrayList<>();
 
                             for (int i = 0; i<elements.length;i++){
 
@@ -346,12 +377,86 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 }
                             }
 
-                            textView.setVisibility(View.INVISIBLE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, MainActivity.this);
-                            recyclerView.setAdapter(dialogRecyclerAdapter);
-                            //textView.setText();
+//                            textView.setVisibility(View.INVISIBLE);
+//                            recyclerView.setVisibility(View.VISIBLE);
+//                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+//                            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, MainActivity.this);
+//                            recyclerView.setAdapter(dialogRecyclerAdapter);
+
+                            main_loading.setVisibility(View.INVISIBLE);
+                            builderSingle = new AlertDialog.Builder(MainActivity.this);
+                            builderSingle.setTitle("Confirm Food");
+                            builderSingle.setView(image);
+
+                            String[] arr = new String[foods.size()];
+                            for(int i=0 ; i< foods.size();i++){
+                                arr[i] = foods.get(i);
+                            }
+                            foods = new ArrayList<>();
+                            builderSingle.setMultiChoiceItems(arr, null, new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                    if(isChecked){
+                                        foods.add(arr[which]);
+                                    }
+                                    else {
+                                        foods.remove(arr[which]);
+                                    }
+                                }
+                            });
+
+                            builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    for(String item : foods){
+                                        fStore.collection("nutrition").document()
+                                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                                            }
+                                        })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(MainActivity.this,"Fail to get nutrition",Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+
+
+                                }
+                            });
+
+                            builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            AlertDialog dialog = builderSingle.create();
+                            dialog.show();
+//
+//
+//                            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_multichoice);
+//                            for(String str:foods){
+//                                arrayAdapter.add(str);
+//                            }
+//
+//                            builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                            builderSingle.setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                            builderSingle.setAdapter(arrayAdapter, null);
+//                            builderSingle.show();
 
                         } catch (IOException e) {
                             e.printStackTrace();
