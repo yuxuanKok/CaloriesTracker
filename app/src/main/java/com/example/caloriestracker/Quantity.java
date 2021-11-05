@@ -12,12 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class Quantity extends AppCompatActivity {
     private QuantityRecyclerAdapter quantityRecyclerAdapter;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
+    String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,25 +63,61 @@ public class Quantity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ArrayList<Food> array = quantityRecyclerAdapter.getList();
-                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                long c = Calendar.getInstance().getTimeInMillis();
 
                 DocumentReference foodRef = fStore
                         .collection("users").document(fAuth.getCurrentUser().getUid())
                         .collection("food").document(date);
+
                 for(Food item: array){
-                    Map<String, Object> docData = new HashMap<>();
-                    docData.put(Long.toString(c), Arrays.asList(item.getFoodName(),item.getQty()));
-                    foodRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            Toast.makeText(Quantity.this,"Successful upload food",Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                            .addOnFailureListener(new OnFailureListener() {
+                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                    firestore.collection("users").document(fAuth.getCurrentUser().getUid())
+                            .collection("food").document(date)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(Quantity.this,"Unsuccessful upload food "+e,Toast.LENGTH_SHORT).show();
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            long c = System.currentTimeMillis();
+                                            Map<String, Object> docData = new HashMap<>();
+                                            docData.put(Long.toString(c), Arrays.asList(item.getFoodName(),item.getQty()));
+
+                                            foodRef.update(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(Quantity.this,"Successful upload food",Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(Quantity.this,"Unsuccessful upload food "+e,Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                            Log.d("qqqq","update");
+                                        } else {
+                                            long c = System.currentTimeMillis();
+                                            Map<String, Object> docData = new HashMap<>();
+                                            docData.put(Long.toString(c), Arrays.asList(item.getFoodName(),item.getQty()));
+
+                                            foodRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(Quantity.this,"Successful upload food",Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(Quantity.this,"Unsuccessful upload food "+e,Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                            Log.d("qqqq","set");
+                                        }
+                                    } else {
+                                        Toast.makeText(Quantity.this, "Failed with: "+ task.getException(),Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                 }
