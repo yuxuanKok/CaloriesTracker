@@ -17,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CaloriesTracker"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FoodDetails"></activity>
+        <activity android:name=".Quantity"></activity>
+        <activity android:name=".FoodDetails" />
         <activity android:name=".WorkoutStep" />
         <activity android:name=".WorkoutPlan" />
         <activity android:name=".UserProfile" />

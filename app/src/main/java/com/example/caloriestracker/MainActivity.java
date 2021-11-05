@@ -330,7 +330,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             String[] elements = output.split(",");
                             foodDetails=new ArrayList<>();
 
-
                             for (int i = 0; i<elements.length;i++){
                                 Food food = new Food();
                                 switch (elements[i].trim()){
@@ -407,8 +406,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Toast.makeText(MainActivity.this,foodsCheck.get(0).getFoodName()+", "+foodsCheck.get(0).getQty(),
-                                            Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(MainActivity.this, Quantity.class);
+                                    //Bundle bundle = new Bundle();
+                                    //bundle.putParcelableArrayList("foodArray", foodsCheck);
+                                    intent.putExtra("foodArray",foodsCheck);
+                                    startActivity(intent);
+                                    Toast.makeText(MainActivity.this,foodsCheck.get(0).getFoodName()+", "+foodsCheck.get(0).getQty(),Toast.LENGTH_SHORT).show();
 //                                    for(Food item : foodsCheck){
 //
 //                                        fStore.collection("nutrition").document(item.getFoodName())

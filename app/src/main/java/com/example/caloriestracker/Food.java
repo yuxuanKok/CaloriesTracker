@@ -2,7 +2,9 @@ package com.example.caloriestracker;
 
 import com.google.type.DateTime;
 
-public class Food {
+import java.io.Serializable;
+
+public class Food implements Serializable {
     String foodName;
     int qty;
     DateTime dateTime;

@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Username"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:layout_weight="1"/>
 
         <EditText
@@ -61,7 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Gender"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:layout_weight="1"/>
 
         <Button
@@ -100,7 +100,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Age"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:layout_weight="1"/>
 
         <Button
@@ -139,7 +139,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Height"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:layout_weight="1"/>
 
         <Button
@@ -176,7 +176,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Weight"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:layout_weight="1"/>
 
         <Button
@@ -216,7 +216,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Activeness"
-            android:textSize="24sp" />
+            android:textSize="22sp" />
 
         <Button
             android:id="@+id/profile_active"
