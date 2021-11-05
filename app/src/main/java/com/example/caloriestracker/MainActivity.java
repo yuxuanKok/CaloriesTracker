@@ -72,15 +72,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private ActivityMainBinding binding;
     private FloatingActionButton camera;
     String selectedImagePath;
-    //ArrayList<String> foods= new ArrayList<>();
     ArrayList<Food> foodDetails = new ArrayList<>();
-    ArrayList<Food> foodsCheck = new ArrayList<>();
     AlertDialog.Builder builderSingle ;
     ImageView image ;
     private ProgressBar main_loading;
-    String userID;
-    FirebaseAuth fAuth;
-    FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +106,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
         main_loading = binding.mainLoading;
-        fAuth=FirebaseAuth.getInstance();
-        fStore=FirebaseFirestore.getInstance();
-
     }
 
     @Override
@@ -390,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             for(int i=0 ; i< foodDetails.size();i++){
                                 arr[i] = foodDetails.get(i).getFoodName();
                             }
-
+                            ArrayList<Food> foodsCheck = new ArrayList<>();
                             builderSingle.setMultiChoiceItems(arr, null, new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -407,27 +399,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent intent = new Intent(MainActivity.this, Quantity.class);
-                                    //Bundle bundle = new Bundle();
-                                    //bundle.putParcelableArrayList("foodArray", foodsCheck);
-                                    intent.putExtra("foodArray",foodsCheck);
+                                    Bundle args = new Bundle();
+                                    args.putSerializable("ARRAYLIST",(Serializable)foodsCheck);
+                                    intent.putExtra("BUNDLE",args);
                                     startActivity(intent);
-                                    Toast.makeText(MainActivity.this,foodsCheck.get(0).getFoodName()+", "+foodsCheck.get(0).getQty(),Toast.LENGTH_SHORT).show();
-//                                    for(Food item : foodsCheck){
-//
-//                                        fStore.collection("nutrition").document(item.getFoodName())
-//                                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                                            @Override
-//                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-//
-//                                            }
-//                                        })
-//                                                .addOnFailureListener(new OnFailureListener() {
-//                                                    @Override
-//                                                    public void onFailure(@NonNull Exception e) {
-//                                                        Toast.makeText(MainActivity.this,"Fail to get nutrition",Toast.LENGTH_SHORT).show();
-//                                                    }
-//                                                });
-//                                    }
                                 }
                             });
 
@@ -438,29 +413,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 }
                             });
                             AlertDialog dialog = builderSingle.create();
-                            //dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                             dialog.show();
-//
-//
-//                            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_multichoice);
-//                            for(String str:foods){
-//                                arrayAdapter.add(str);
-//                            }
-//
-//                            builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.dismiss();
-//                                }
-//                            });
-//                            builderSingle.setPositiveButton("confirm", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    dialog.dismiss();
-//                                }
-//                            });
-//                            builderSingle.setAdapter(arrayAdapter, null);
-//                            builderSingle.show();
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -498,5 +451,4 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             //resume tasks needing this permission
         }
     }
-
 }

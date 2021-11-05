@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,6 +44,18 @@ public class QuantityRecyclerAdapter extends RecyclerView.Adapter<QuantityRecycl
         holder.quantity_qty.setAdapter(adapter);
         holder.quantity_qty.setSelection(list.get(position).getQty()-1);
 
+        holder.quantity_qty.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                int qty = Integer.parseInt(parent.getItemAtPosition(pos).toString());
+                list.get(position).setQty(qty);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -63,5 +76,9 @@ public class QuantityRecyclerAdapter extends RecyclerView.Adapter<QuantityRecycl
             quantity_food_name = itemView.findViewById(R.id.quantity_food_name);
             quantity_qty = itemView.findViewById(R.id.quantity_qty);
         }
+    }
+
+    public ArrayList<Food> getList(){
+        return list;
     }
 }
