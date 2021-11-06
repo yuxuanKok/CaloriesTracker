@@ -18,13 +18,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class WorkoutStep extends AppCompatActivity {
@@ -40,6 +45,7 @@ public class WorkoutStep extends AppCompatActivity {
     private FloatingActionButton workout_done;
     ArrayList<String> list = new ArrayList<>();
     ArrayList<Workout> workoutList = new ArrayList<>();
+    String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
 
     @Override
@@ -150,7 +156,18 @@ public class WorkoutStep extends AppCompatActivity {
                 for(Workout x: workoutList){
                     totalBurn += BMR * x.getMET()/24.0 * (x.getTime()/60.0);
                 }
-                Toast.makeText(WorkoutStep.this,String.valueOf(totalBurn),Toast.LENGTH_SHORT).show();
+                DocumentReference workoutRef = fStore
+                        .collection("users").document(fAuth.getCurrentUser().getUid())
+                        .collection("workout").document(date);
+
+                Map<String,Object> workout = new HashMap<>();
+                workout.put("burn",totalBurn);
+                workoutRef.set(workout).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(WorkoutStep.this,"User "+userID+" Profile Updated",Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }

@@ -7,13 +7,13 @@ import java.io.Serializable;
 public class Food implements Serializable {
     String foodName;
     int qty;
-    DateTime dateTime;
+    String dateTime;
     int totalCal;
     boolean healthy;
 
     public Food(){}
 
-    public Food(String foodName, int totalCal, int qty, boolean healthy, DateTime dateTime) {
+    public Food(String foodName, int totalCal, int qty, boolean healthy, String dateTime) {
         this.foodName = foodName;
         this.totalCal = totalCal;
         this.qty = qty;
@@ -53,11 +53,11 @@ public class Food implements Serializable {
         this.healthy = healthy;
     }
 
-    public DateTime getDateTime() {
+    public String getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(DateTime dateTime) {
+    public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
     }
 }
