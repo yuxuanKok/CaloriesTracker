@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +39,7 @@ public class WorkoutStep extends AppCompatActivity {
     private FirebaseFirestore fStore;
     private String userID,collection, doc;
     private int intensity, type;
-    private double BMR;
+    private double BMR,totalBurn;
     private TextView step_title;
     private RecyclerView workoutRecyclerView;
     private WorkoutRecyclerAdapter workoutRecyclerAdapter;
@@ -46,7 +47,6 @@ public class WorkoutStep extends AppCompatActivity {
     ArrayList<String> list = new ArrayList<>();
     ArrayList<Workout> workoutList = new ArrayList<>();
     String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +152,7 @@ public class WorkoutStep extends AppCompatActivity {
         workout_done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                double totalBurn=0;
+                totalBurn= 0;
                 for(Workout x: workoutList){
                     totalBurn += BMR * x.getMET()/24.0 * (x.getTime()/60.0);
                 }
@@ -160,14 +160,36 @@ public class WorkoutStep extends AppCompatActivity {
                         .collection("users").document(fAuth.getCurrentUser().getUid())
                         .collection("workout").document(date);
 
-                Map<String,Object> workout = new HashMap<>();
-                workout.put("burn",totalBurn);
-                workoutRef.set(workout).addOnSuccessListener(new OnSuccessListener<Void>() {
+                workoutRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(WorkoutStep.this,"User "+userID+" Profile Updated",Toast.LENGTH_SHORT).show();
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if(documentSnapshot.exists()){
+                                totalBurn+=documentSnapshot.getDouble("burn");
+                                Map<String,Object> workout = new HashMap<>();
+                                workout.put("burn",totalBurn);
+                                workoutRef.set(workout).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(WorkoutStep.this,"Workout updated",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            else{
+                                Map<String,Object> workout = new HashMap<>();
+                                workout.put("burn",totalBurn);
+                                workoutRef.set(workout).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(WorkoutStep.this,"Workout updated",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
                     }
                 });
+                startActivity(new Intent(WorkoutStep.this,MainActivity.class));
             }
         });
     }

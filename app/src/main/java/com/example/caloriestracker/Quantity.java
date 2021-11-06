@@ -194,6 +194,7 @@ public class Quantity extends AppCompatActivity {
 //                                }
 //                            });
 //                    }
+                startActivity(new Intent(Quantity.this,MainActivity.class));
             }
         });
     }

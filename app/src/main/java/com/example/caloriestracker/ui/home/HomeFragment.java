@@ -2,7 +2,6 @@ package com.example.caloriestracker.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,29 +11,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.caloriestracker.MainActivity;
-import com.example.caloriestracker.UserProfile;
+import com.example.caloriestracker.Food;
+import com.example.caloriestracker.R;
 import com.example.caloriestracker.WorkoutPlan;
 import com.example.caloriestracker.databinding.FragmentHomeBinding;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.Executor;
+import java.util.Locale;
+
 
 public class HomeFragment extends Fragment {
 
@@ -45,14 +47,15 @@ public class HomeFragment extends Fragment {
     private TextView home_budget, home_cal_consumed,home_cal_burn,home_remaining,home_date,home_bmi, home_range;
     private Button home_workout;
 
-    RecyclerView recyclerView;
-    RecyclerAdapter recyclerAdapter;
+    private RecyclerView recyclerView;
+    private FirestoreRecyclerAdapter adapter;
+    //RecyclerAdapter recyclerAdapter;
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
     String time_array[]={};
-    int weight = 0,height = 0, age = 0, consumed = 0, burn = 0, active = 0;
+    int weight = 0,height = 0, age = 0, consumed = 0, burn =0, active = 0;
     double bmi, budget, bmr;
 
 
@@ -74,9 +77,9 @@ public class HomeFragment extends Fragment {
         home_bmi=binding.homeBmi;
         home_workout=binding.homeWorkout;
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerAdapter = new RecyclerAdapter(time_array,getActivity());
-        recyclerView.setAdapter(recyclerAdapter);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        recyclerAdapter = new RecyclerAdapter(time_array,getActivity());
+//        recyclerView.setAdapter(recyclerAdapter);
 
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
@@ -96,10 +99,27 @@ public class HomeFragment extends Fragment {
                         age = documentSnapshot.getLong("age").intValue();
                         active = documentSnapshot.getLong("active").intValue();
                         //consumed = documentSnapshot.getLong("cal_consumed").intValue();
-                        //burn = documentSnapshot.getLong("cal_burn").intValue();
 
-                        home_cal_burn.setText(String.valueOf(burn));
                         home_cal_consumed.setText(String.valueOf(consumed));
+
+                        //burn
+                        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                        DocumentReference burnRef = fStore
+                                .collection("users").document(fAuth.getCurrentUser().getUid())
+                                .collection("workout").document(date);
+
+                        burnRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                    if(documentSnapshot.exists()){
+                                        burn = (int)Math.round(documentSnapshot.getDouble("burn"));
+                                        home_cal_burn.setText(String.valueOf(burn));
+                                    }
+                                }
+                            }
+                        });
 
                         //bmi
                         bmi = weight/(height*height/10000.0);
@@ -110,13 +130,13 @@ public class HomeFragment extends Fragment {
                             home_range.setText("Underweight");
                         }
                         else if(bmi>=18.5 && bmi<25){
-                            home_range.setText("healthy weight");
+                            home_range.setText("Healthy");
                         }
                         else if(bmi>=25.0 && bmi<30){
-                            home_range.setText("overweight ");
+                            home_range.setText("Overweight ");
                         }
                         else if (bmi>=30.0){
-                            home_range.setText("obesity ");
+                            home_range.setText("Obesity ");
                         }
 
                         //budget
@@ -156,6 +176,9 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(getActivity(),"Fail to get data",Toast.LENGTH_SHORT).show();
                     }
                 });
+
+
+
 
 //        DocumentReference documentReference = fStore.collection("users").document(userID);
 //        documentReference.addSnapshotListener(getActivity(), new EventListener<DocumentSnapshot>() {
@@ -201,6 +224,32 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+//        //Query
+        Query query = fStore.collection("user").document(userID)
+                .collection("food");
+        //Recycler Option
+        FirestoreRecyclerOptions<Food> option = new FirestoreRecyclerOptions.Builder<Food>()
+                .setQuery(query,Food.class)
+                .build();
+
+         adapter = new FirestoreRecyclerAdapter<Food, FoodViewHolder>(option) {
+            @NonNull
+            @Override
+            public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_recycler_view,parent,false);
+                return new FoodViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
+                holder.time.setText(model.getDateTime());
+            }
+        };
+
+         recyclerView.setHasFixedSize(true);
+         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+         recyclerView.setAdapter(adapter);
         return root;
     }
 
@@ -208,5 +257,25 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.startListening();
+    }
+
+    private class FoodViewHolder extends RecyclerView.ViewHolder {
+        private TextView time;
+        public FoodViewHolder(@NonNull View itemView) {
+            super(itemView);
+            time=itemView.findViewById(R.id.time);
+        }
     }
 }
