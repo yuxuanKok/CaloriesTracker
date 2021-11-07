@@ -38,10 +38,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public void onBindViewHolder(@NonNull RecyclerAdapter.ViewHolder holder, int position) {
 
         holder.time.setText(list.get(position).getDateTime());
-        holder.time.setOnClickListener(new View.OnClickListener() {
+        holder.cal.setText(String.valueOf(list.get(position).getTotalCal()));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context,"Yes",Toast.LENGTH_SHORT).show();
+
             }
         });
     }

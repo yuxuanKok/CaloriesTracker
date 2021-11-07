@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 
 public class HomeFragment extends Fragment {
@@ -62,8 +63,9 @@ public class HomeFragment extends Fragment {
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
-    int weight = 0,height = 0, age = 0, consumed = 0, burn =0, active = 0;
+    int weight = 0,height = 0, age = 0, consumed = 0, burn = 0, active = 0;
     double bmi, budget, bmr;
+    String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -193,32 +195,70 @@ public class HomeFragment extends Fragment {
         //Recycler View
         ArrayList<Food> foodArrayList = new ArrayList<>();
         fStore.collection("users").document(userID)
-                .collection("food").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                .collection("food").document(date)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for(QueryDocumentSnapshot document: queryDocumentSnapshots){
-                            Food food = new Food();
-                            food.setDateTime(document.getId());
-                            foodArrayList.add(food);
-                            Log.d("arrayyy",document.getData().toString());
-                            Map<String, Object> foodMap = document.getData();
-                            for(Object item: foodMap.values()){
-                                Log.d("arrayyyy",item.toString());
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            if(document.exists()){
+                                Map<String,Object> foodMap = document.getData();
+                                for(Map.Entry<String, Object> entry : foodMap.entrySet()){
+                                    Map<String,Object>details = (Map<String, Object>) entry.getValue();
+                                    Food food = new Food();
+                                    for(Map.Entry<String,Object> entryset: details.entrySet()){
+                                        if(entryset.getKey().equals("foodName")){
+                                            food.setFoodName(entryset.getValue().toString());
+                                        }
+                                        if(entryset.getKey().equals("dateTime")){
+                                            food.setDateTime(entryset.getValue().toString());
+                                        }
+                                        if(entryset.getKey().equals("totalCal")){
+                                            food.setTotalCal(Integer.parseInt(entryset.getValue().toString()));
+                                        }
+                                        if(entryset.getKey().equals("qty")){
+                                            food.setQty(Integer.parseInt(entryset.getValue().toString()));
+                                        }
+                                        if(entryset.getKey().equals("healthy")){
+                                            food.setHealthy(Boolean.parseBoolean(entryset.getValue().toString()));
+                                        }
+                                    }
+                                    foodArrayList.add(food);
+                                    Log.d("foodsize",String.valueOf(foodArrayList.size()));
+//                                    if(entry.getKey().equals("1636304637697")){
+//                                        Map<String,Object> timeMap = (Map<String, Object>) entry.getValue();
+//                                        for(Map.Entry<String,Object> entryset: timeMap.entrySet()){
+//                                            if(entryset.getKey().equals("foodName")){
+//                                                Log.d("foodName",entryset.getValue().toString());
+//                                            }
+//                                        }
+//                                    }
+
+                                }
                             }
-
+                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                            recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
+                            recyclerView.setAdapter(recyclerAdapter);
                         }
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                        recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
-                        recyclerView.setAdapter(recyclerAdapter);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
                     }
                 });
+//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//            @Override
+//            public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                Map<String,Object> foodMap = documentSnapshot.getData();
+//
+//
+//            }
+//        })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//
+//                    }
+//                });
+
+
        //Query
 //        Query query = fStore.collection("users").document(userID)
 //                .collection("food");

@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +66,6 @@ public class Quantity extends AppCompatActivity {
             public void onClick(View v) {
                 ArrayList<Food> array = quantityRecyclerAdapter.getList();
 
-
                 for(Food item : array){
                     long cc = System.currentTimeMillis();
                     item.setDateTime(Long.toString(cc));
@@ -75,6 +75,7 @@ public class Quantity extends AppCompatActivity {
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             item.setHealthy(documentSnapshot.getBoolean("healthy"));
                             item.setTotalCal(documentSnapshot.getLong("cal").intValue()*item.getQty());
+                            Log.d("cal",String.valueOf(item.totalCal));
                         }
                     })
                             .addOnFailureListener(new OnFailureListener() {
@@ -90,7 +91,7 @@ public class Quantity extends AppCompatActivity {
                         .collection("users").document(fAuth.getCurrentUser().getUid())
                         .collection("food").document(date);
 
-                Map<String, Object> docData = new HashMap<>();
+                Map<String, Food> docData = new HashMap<>();
                 for(Food i : array){
                     docData.put(i.getDateTime(), i);
                 }
@@ -101,7 +102,7 @@ public class Quantity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
                             if(document.exists()){
-                                foodRef.update(docData)
+                                foodRef.set(docData,SetOptions.merge())
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
