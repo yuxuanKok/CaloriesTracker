@@ -21,6 +21,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,9 +64,10 @@ public class Quantity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ArrayList<Food> array = quantityRecyclerAdapter.getList();
-                long cc = System.currentTimeMillis();
+
 
                 for(Food item : array){
+                    long cc = System.currentTimeMillis();
                     item.setDateTime(Long.toString(cc));
                     DocumentReference nutrition = fStore.collection("nutrition").document(item.getFoodName());
                     nutrition.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -89,7 +91,10 @@ public class Quantity extends AppCompatActivity {
                         .collection("food").document(date);
 
                 Map<String, Object> docData = new HashMap<>();
-                docData.put(String.valueOf(cc), array);
+                for(Food i : array){
+                    docData.put(i.getDateTime(), i);
+                }
+//                docData.put(String.valueOf(cc), array);
                 foodRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {

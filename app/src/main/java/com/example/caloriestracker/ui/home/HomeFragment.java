@@ -2,6 +2,7 @@ package com.example.caloriestracker.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.caloriestracker.Food;
 import com.example.caloriestracker.R;
 import com.example.caloriestracker.WorkoutPlan;
+import com.example.caloriestracker.WorkoutRecyclerAdapter;
+import com.example.caloriestracker.WorkoutStep;
 import com.example.caloriestracker.databinding.FragmentHomeBinding;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -30,12 +33,17 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class HomeFragment extends Fragment {
@@ -49,12 +57,11 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private FirestoreRecyclerAdapter adapter;
-    //RecyclerAdapter recyclerAdapter;
+    RecyclerAdapter recyclerAdapter;
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
-    String time_array[]={};
     int weight = 0,height = 0, age = 0, consumed = 0, burn =0, active = 0;
     double bmi, budget, bmr;
 
@@ -77,9 +84,6 @@ public class HomeFragment extends Fragment {
         home_bmi=binding.homeBmi;
         home_workout=binding.homeWorkout;
 
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//        recyclerAdapter = new RecyclerAdapter(time_array,getActivity());
-//        recyclerView.setAdapter(recyclerAdapter);
 
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
@@ -178,45 +182,6 @@ public class HomeFragment extends Fragment {
                 });
 
 
-
-
-//        DocumentReference documentReference = fStore.collection("users").document(userID);
-//        documentReference.addSnapshotListener(getActivity(), new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-//                Double budget;
-//                weight = value.getLong("weight").intValue();
-//                height = value.getLong("height").intValue();
-//                age = value.getLong("age").intValue();
-//                consumed = value.getLong("cal_consumed").intValue();
-//                burn = value.getLong("cal_burn").intValue();
-//
-//                home_cal_burn.setText(String.valueOf(burn));
-//                home_cal_consumed.setText(String.valueOf(consumed));
-//                //budget
-//                if(value.getLong("gender").intValue()==0){
-//                    budget = 665.1+(9.563*weight)+(1.85*height)-(4.676*age);
-//                }
-//                else{
-//                    budget = 66.47+(13.75*weight)+(5*height)-(6.75*age);
-//                }
-//                home_budget.setText(String.valueOf(Math.round(budget)));
-//
-//                int remaining = (int) Math.round(((budget-consumed)+burn)/budget*100);
-//                progressBar.setProgress(remaining);
-//                home_remaining.setText(remaining+"%");
-//            }
-//        });
-
-
-//        final TextView textView = binding.textHome;
-//        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
-
         home_workout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,31 +190,60 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        //Query
-        Query query = fStore.collection("user").document(userID)
-                .collection("food");
-        //Recycler Option
-        FirestoreRecyclerOptions<Food> option = new FirestoreRecyclerOptions.Builder<Food>()
-                .setQuery(query,Food.class)
-                .build();
+        //Recycler View
+        ArrayList<Food> foodArrayList = new ArrayList<>();
+        fStore.collection("users").document(userID)
+                .collection("food").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for(QueryDocumentSnapshot document: queryDocumentSnapshots){
+                            Food food = new Food();
+                            food.setDateTime(document.getId());
+                            foodArrayList.add(food);
+                            Log.d("arrayyy",document.getData().toString());
+                            Map<String, Object> foodMap = document.getData();
+                            for(Object item: foodMap.values()){
+                                Log.d("arrayyyy",item.toString());
+                            }
 
-         adapter = new FirestoreRecyclerAdapter<Food, FoodViewHolder>(option) {
-            @NonNull
-            @Override
-            public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_recycler_view,parent,false);
-                return new FoodViewHolder(view);
-            }
+                        }
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                        recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
+                        recyclerView.setAdapter(recyclerAdapter);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-            @Override
-            protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
-                holder.time.setText(model.getDateTime());
-            }
-        };
-
-         recyclerView.setHasFixedSize(true);
-         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-         recyclerView.setAdapter(adapter);
+                    }
+                });
+       //Query
+//        Query query = fStore.collection("users").document(userID)
+//                .collection("food");
+//        //Recycler Option
+//        FirestoreRecyclerOptions<Food> option = new FirestoreRecyclerOptions.Builder<Food>()
+//                .setQuery(query,Food.class)
+//                .build();
+//
+//         adapter = new FirestoreRecyclerAdapter<Food, FoodViewHolder>(option) {
+//            @NonNull
+//            @Override
+//            public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_recycler_view,parent,false);
+//                return new FoodViewHolder(view);
+//            }
+//
+//            @Override
+//            protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
+//                holder.time.setText(model.getDateTime());
+//            }
+//        };
+//
+//         recyclerView.setHasFixedSize(true);
+//         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//         recyclerView.setAdapter(adapter);
         return root;
     }
 
@@ -259,23 +253,23 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.startListening();
-    }
-
-    private class FoodViewHolder extends RecyclerView.ViewHolder {
-        private TextView time;
-        public FoodViewHolder(@NonNull View itemView) {
-            super(itemView);
-            time=itemView.findViewById(R.id.time);
-        }
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        adapter.startListening();
+//    }
+//
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        adapter.startListening();
+//    }
+//
+//    private class FoodViewHolder extends RecyclerView.ViewHolder {
+//        private TextView time;
+//        public FoodViewHolder(@NonNull View itemView) {
+//            super(itemView);
+//            time=itemView.findViewById(R.id.home_list_datetime);
+//        }
+//    }
 }

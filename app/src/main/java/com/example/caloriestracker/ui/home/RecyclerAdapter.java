@@ -10,15 +10,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.caloriestracker.Food;
 import com.example.caloriestracker.R;
+
+import java.util.ArrayList;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    String data[];
+    ArrayList<Food> list;
     Context context;
 
-    public RecyclerAdapter(String[] data, Context context) {
-        this.data = data;
+    public RecyclerAdapter(ArrayList<Food> list, Context context) {
+        this.list = list;
         this.context = context;
     }
 
@@ -34,7 +37,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapter.ViewHolder holder, int position) {
 
-        holder.time.setText(data[position]);
+        holder.time.setText(list.get(position).getDateTime());
         holder.time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,14 +48,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return data.length;
+        if (list == null){
+            return 0;
+        }
+        else{
+            return  list.size();
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         TextView time;
+        TextView cal;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            time = itemView.findViewById(R.id.time);
+            time = itemView.findViewById(R.id.home_list_datetime);
+            cal = itemView.findViewById(R.id.home_list_cal);
         }
     }
 }
