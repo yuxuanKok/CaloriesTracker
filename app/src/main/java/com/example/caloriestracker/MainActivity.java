@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -115,53 +116,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
             selectedImagePath = getPath(getApplicationContext(), uri);
-
-
-//            // custom dialog
-//            final Dialog dialog = new Dialog(context);
-//            dialog.setContentView(R.layout.custom_dialog);
-//
-//            // set the custom dialog components - image and button
-//            ImageView image = (ImageView) dialog.findViewById(R.id.dialog_imageview);
-//            image.setImageURI(uri);
-//
-//            textView = (TextView) dialog.findViewById(R.id.textView2);
-//            recyclerView = (RecyclerView) dialog.findViewById(R.id.dialog_recyclerView);
-//
-//            Button dialogButton = (Button) dialog.findViewById(R.id.dialog_confirm);
-//            ////////////////////////////
-////            dialogRecyclerAdapter = new DialogRecyclerAdapter(foods, new DialogRecyclerAdapter.OnItemCheckListener() {
-////                @Override
-////                public void onItemCheck(String string) {
-////                    currentSelectedItems.add(string);
-////                }
-////
-////                @Override
-////                public void onItemUncheck(String string) {
-////                    currentSelectedItems.remove(string);
-////                }
-////            });
-//            ///////////////////////////////////////////////
-//            // if button is clicked, close the custom dialog
-//            dialogButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-////                    Intent intent = new Intent(MainActivity.this,FoodDetails.class);
-////                    Bundle args = new Bundle();
-////                    args.putSerializable("ARRAYLIST",(Serializable)foods);
-////                    intent.putExtra("BUNDLE",args);
-////                    startActivity(intent);
-//
-//                    dialog.dismiss();
-//                }
-//            });
             connectServer();
             image = new ImageView(this);
             image.setImageURI(uri);
-            
-
-//            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            dialog.show();
         }
 
     }
