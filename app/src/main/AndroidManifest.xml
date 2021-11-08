@@ -18,7 +18,6 @@
         android:theme="@style/Theme.CaloriesTracker"
         android:usesCleartextTraffic="true">
         <activity android:name=".Quantity"></activity>
-        <activity android:name=".FoodDetails" />
         <activity android:name=".WorkoutStep" />
         <activity android:name=".WorkoutPlan" />
         <activity android:name=".UserProfile" />

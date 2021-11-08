@@ -1,9 +1,9 @@
 package com.example.caloriestracker.ui.home;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.caloriestracker.Food;
-import com.example.caloriestracker.FoodDetails;
-import com.example.caloriestracker.MainActivity;
-import com.example.caloriestracker.Quantity;
 import com.example.caloriestracker.R;
 import com.example.caloriestracker.WorkoutPlan;
 import com.example.caloriestracker.databinding.FragmentHomeBinding;
@@ -33,7 +30,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -52,7 +48,6 @@ public class HomeFragment extends Fragment {
     private Button home_workout;
     private RecyclerView recyclerView;
     private FirestoreRecyclerAdapter adapter;
-    RecyclerAdapter recyclerAdapter;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
@@ -295,7 +290,10 @@ public class HomeFragment extends Fragment {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startActivity(new Intent(getActivity(), FoodDetails.class));
+//                        Intent intent = new Intent(getActivity(), FoodDetails.class);
+//                        intent.putExtra("foodDetails",model);
+//                        startActivity(intent);
+                        
                     }
                 });
             }
