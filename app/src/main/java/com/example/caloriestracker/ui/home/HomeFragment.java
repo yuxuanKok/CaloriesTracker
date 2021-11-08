@@ -1,6 +1,7 @@
 package com.example.caloriestracker.ui.home;
 
 import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.caloriestracker.Food;
+import com.example.caloriestracker.FoodDetails;
+import com.example.caloriestracker.MainActivity;
+import com.example.caloriestracker.Quantity;
 import com.example.caloriestracker.R;
 import com.example.caloriestracker.WorkoutPlan;
 import com.example.caloriestracker.databinding.FragmentHomeBinding;
@@ -159,17 +163,23 @@ public class HomeFragment extends Fragment {
                             }
                         });
 
-                        String valid_until = "08/11/2021";
+                        Calendar day = Calendar.getInstance();
+                        day.set(Calendar.MILLISECOND, 0);
+                        day.set(Calendar.SECOND, 0);
+                        day.set(Calendar.MINUTE, 0);
+                        day.set(Calendar.HOUR_OF_DAY, 0);
+
                         fStore.collection("users").document(userID)
-                                .collection("food").whereLessThan("dateTime",new Date())
+                                .collection("food").whereGreaterThan("dateTime",day.getTime())
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         if(task.isSuccessful()){
                                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                                Log.d("qqqq",document.getDate("dateTime").toString());
+                                                consumed += document.getLong("totalCal");
                                             }
+                                            home_cal_consumed.setText(String.valueOf(consumed));
                                         }
                                     }
                                 });
@@ -282,6 +292,12 @@ public class HomeFragment extends Fragment {
                 holder.time.setText(strTime);
                 holder.date.setText(strDate);
                 holder.cal.setText(model.getTotalCal()+" cal");
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getActivity(), FoodDetails.class));
+                    }
+                });
             }
         };
 
