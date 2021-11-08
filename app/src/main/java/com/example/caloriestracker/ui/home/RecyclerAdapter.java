@@ -37,14 +37,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapter.ViewHolder holder, int position) {
 
-        holder.time.setText(list.get(position).getDateTime());
-        holder.cal.setText(String.valueOf(list.get(position).getTotalCal()));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+//        holder.time.setText(String.valueOf(list.get(position).getDateTime()));
+//        holder.cal.setText(String.valueOf(list.get(position).getTotalCal()));
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
     }
 
     @Override
@@ -62,7 +62,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         TextView cal;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            time = itemView.findViewById(R.id.home_list_datetime);
+            time = itemView.findViewById(R.id.home_list_time);
             cal = itemView.findViewById(R.id.home_list_cal);
         }
     }

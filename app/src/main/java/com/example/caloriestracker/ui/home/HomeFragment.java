@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.caloriestracker.Food;
+import com.example.caloriestracker.R;
 import com.example.caloriestracker.WorkoutPlan;
 import com.example.caloriestracker.databinding.FragmentHomeBinding;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,13 +29,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -42,7 +47,7 @@ public class HomeFragment extends Fragment {
     private TextView home_budget, home_cal_consumed,home_cal_burn,home_remaining,home_date,home_bmi, home_range;
     private Button home_workout;
     private RecyclerView recyclerView;
-//    private FirestoreRecyclerAdapter adapter;
+    private FirestoreRecyclerAdapter adapter;
     RecyclerAdapter recyclerAdapter;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
@@ -81,48 +86,48 @@ public class HomeFragment extends Fragment {
         userID = fAuth.getCurrentUser().getUid();
 
         //Recycler View
-        ArrayList<Food> foodArrayList = new ArrayList<>();
-        fStore.collection("users").document(userID)
-                .collection("food").document(date)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot document = task.getResult();
-                            if(document.exists()){
-                                Map<String,Object> foodMap = document.getData();
-                                for(Map.Entry<String, Object> entry : foodMap.entrySet()){
-                                    Map<String,Object>details = (Map<String, Object>) entry.getValue();
-                                    Food food = new Food();
-                                    for(Map.Entry<String,Object> entryset: details.entrySet()){
-                                        if(entryset.getKey().equals("foodName")){
-                                            food.setFoodName(entryset.getValue().toString());
-                                        }
-                                        if(entryset.getKey().equals("dateTime")){
-                                            food.setDateTime(entryset.getValue().toString());
-                                        }
-                                        if(entryset.getKey().equals("totalCal")){
-                                            food.setTotalCal(Integer.parseInt(entryset.getValue().toString()));
-                                            consumed+=Integer.parseInt(entryset.getValue().toString());
-                                        }
-                                        if(entryset.getKey().equals("qty")){
-                                            food.setQty(Integer.parseInt(entryset.getValue().toString()));
-                                        }
-                                        if(entryset.getKey().equals("healthy")){
-                                            food.setHealthy(Boolean.parseBoolean(entryset.getValue().toString()));
-                                        }
-                                    }
-                                    foodArrayList.add(food);
-                                    home_cal_consumed.setText(String.valueOf(consumed));
-                                }
-                            }
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                            recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
-                            recyclerView.setAdapter(recyclerAdapter);
-                        }
-                    }
-                });
+//        ArrayList<Food> foodArrayList = new ArrayList<>();
+//        fStore.collection("users").document(userID)
+//                .collection("food").document(date)
+//                .get()
+//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if(task.isSuccessful()){
+//                            DocumentSnapshot document = task.getResult();
+//                            if(document.exists()){
+//                                Map<String,Object> foodMap = document.getData();
+//                                for(Map.Entry<String, Object> entry : foodMap.entrySet()){
+//                                    Map<String,Object>details = (Map<String, Object>) entry.getValue();
+//                                    Food food = new Food();
+//                                    for(Map.Entry<String,Object> entryset: details.entrySet()){
+//                                        if(entryset.getKey().equals("foodName")){
+//                                            food.setFoodName(entryset.getValue().toString());
+//                                        }
+//                                        if(entryset.getKey().equals("dateTime")){
+//                                            food.setDateTime(entryset.getValue().toString());
+//                                        }
+//                                        if(entryset.getKey().equals("totalCal")){
+//                                            food.setTotalCal(Integer.parseInt(entryset.getValue().toString()));
+//                                            consumed+=Integer.parseInt(entryset.getValue().toString());
+//                                        }
+//                                        if(entryset.getKey().equals("qty")){
+//                                            food.setQty(Integer.parseInt(entryset.getValue().toString()));
+//                                        }
+//                                        if(entryset.getKey().equals("healthy")){
+//                                            food.setHealthy(Boolean.parseBoolean(entryset.getValue().toString()));
+//                                        }
+//                                    }
+//                                    foodArrayList.add(food);
+//                                    home_cal_consumed.setText(String.valueOf(consumed));
+//                                }
+//                            }
+//                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//                            recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
+//                            recyclerView.setAdapter(recyclerAdapter);
+//                        }
+//                    }
+//                });
 
         //Dashboard
         fStore.collection("users").document(userID)
@@ -138,7 +143,7 @@ public class HomeFragment extends Fragment {
                         //burn
                         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
                         DocumentReference burnRef = fStore
-                                .collection("users").document(fAuth.getCurrentUser().getUid())
+                                .collection("users").document(userID)
                                 .collection("workout").document(date);
 
                         burnRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -153,6 +158,21 @@ public class HomeFragment extends Fragment {
                                 }
                             }
                         });
+
+                        String valid_until = "08/11/2021";
+                        fStore.collection("users").document(userID)
+                                .collection("food").whereLessThan("dateTime",new Date())
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                Log.d("qqqq",document.getDate("dateTime").toString());
+                                            }
+                                        }
+                                    }
+                                });
 
                         //bmi
                         bmi = weight/(height*height/10000.0);
@@ -237,30 +257,37 @@ public class HomeFragment extends Fragment {
 
 
        //Query
-//        Query query = fStore.collection("users").document(userID)
-//                .collection("food");
-//        //Recycler Option
-//        FirestoreRecyclerOptions<Food> option = new FirestoreRecyclerOptions.Builder<Food>()
-//                .setQuery(query,Food.class)
-//                .build();
-//
-//         adapter = new FirestoreRecyclerAdapter<Food, FoodViewHolder>(option) {
-//            @NonNull
-//            @Override
-//            public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_recycler_view,parent,false);
-//                return new FoodViewHolder(view);
-//            }
-//
-//            @Override
-//            protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
-//                holder.time.setText(model.getDateTime());
-//            }
-//        };
-//
-//         recyclerView.setHasFixedSize(true);
-//         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//         recyclerView.setAdapter(adapter);
+        Query query = fStore.collection("users").document(userID)
+                .collection("food").orderBy("dateTime", Query.Direction.DESCENDING);
+        //Recycler Option
+        FirestoreRecyclerOptions<Food> option = new FirestoreRecyclerOptions.Builder<Food>()
+                .setQuery(query,Food.class)
+                .build();
+
+         adapter = new FirestoreRecyclerAdapter<Food, FoodViewHolder>(option) {
+            @NonNull
+            @Override
+            public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_recycler_view,parent,false);
+                return new FoodViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
+                Date date = model.getDateTime();
+                DateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy.mm.dd ");
+                String strDate = dateFormat.format(date);
+                DateFormat timeFormat = new SimpleDateFormat("hh:mm");
+                String strTime = timeFormat.format(date);
+                holder.time.setText(strTime);
+                holder.date.setText(strDate);
+                holder.cal.setText(model.getTotalCal()+" cal");
+            }
+        };
+
+         recyclerView.setHasFixedSize(true);
+         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+         recyclerView.setAdapter(adapter);
         return root;
     }
 
@@ -270,23 +297,27 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        adapter.startListening();
-//    }
-//
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        adapter.startListening();
-//    }
-//
-//    private class FoodViewHolder extends RecyclerView.ViewHolder {
-//        private TextView time;
-//        public FoodViewHolder(@NonNull View itemView) {
-//            super(itemView);
-//            time=itemView.findViewById(R.id.home_list_datetime);
-//        }
-//    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.startListening();
+    }
+
+    private class FoodViewHolder extends RecyclerView.ViewHolder {
+        private TextView time;
+        private TextView cal;
+        private TextView date;
+        public FoodViewHolder(@NonNull View itemView) {
+            super(itemView);
+            time = itemView.findViewById(R.id.home_list_time);
+            cal = itemView.findViewById(R.id.home_list_cal);
+            date = itemView.findViewById(R.id.home_list_date);
+        }
+    }
 }

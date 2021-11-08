@@ -3,17 +3,19 @@ package com.example.caloriestracker;
 import com.google.type.DateTime;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class Food implements Serializable {
     String foodName;
     int qty;
-    String dateTime;
+    Date dateTime;
     int totalCal;
     boolean healthy;
 
     public Food(){}
 
-    public Food(String foodName, int totalCal, int qty, boolean healthy, String dateTime) {
+    public Food(String foodName, int totalCal, int qty, boolean healthy, Date dateTime) {
         this.foodName = foodName;
         this.totalCal = totalCal;
         this.qty = qty;
@@ -53,11 +55,11 @@ public class Food implements Serializable {
         this.healthy = healthy;
     }
 
-    public String getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }
