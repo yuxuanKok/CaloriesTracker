@@ -1,9 +1,11 @@
 package com.example.caloriestracker.ui.home;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,9 +54,8 @@ public class HomeFragment extends Fragment {
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
-    int weight = 0,height = 0, age = 0, consumed = 0, burn = 0, active = 0;
+    int weight = 0,height = 0, age = 0, consumed = 0, burn = 0, active = 0, remaining= 100;
     double bmi, budget, bmr;
-    String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -139,46 +141,6 @@ public class HomeFragment extends Fragment {
                         age = documentSnapshot.getLong("age").intValue();
                         active = documentSnapshot.getLong("active").intValue();
 
-                        //burn
-                        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                        DocumentReference burnRef = fStore
-                                .collection("users").document(userID)
-                                .collection("workout").document(date);
-
-                        burnRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    DocumentSnapshot documentSnapshot = task.getResult();
-                                    if(documentSnapshot.exists()){
-                                        burn = (int)Math.round(documentSnapshot.getDouble("burn"));
-                                        home_cal_burn.setText(String.valueOf(burn));
-                                    }
-                                }
-                            }
-                        });
-
-                        Calendar day = Calendar.getInstance();
-                        day.set(Calendar.MILLISECOND, 0);
-                        day.set(Calendar.SECOND, 0);
-                        day.set(Calendar.MINUTE, 0);
-                        day.set(Calendar.HOUR_OF_DAY, 0);
-
-                        fStore.collection("users").document(userID)
-                                .collection("food").whereGreaterThan("dateTime",day.getTime())
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if(task.isSuccessful()){
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                consumed += document.getLong("totalCal");
-                                            }
-                                            home_cal_consumed.setText(String.valueOf(consumed));
-                                        }
-                                    }
-                                });
-
                         //bmi
                         bmi = weight/(height*height/10000.0);
                         home_bmi.setText(String.format ("%.2f", bmi));
@@ -206,8 +168,8 @@ public class HomeFragment extends Fragment {
                         }
                         switch (active){
                             case 0:
-                              budget = bmr * 1.2;
-                              break;
+                                budget = bmr * 1.2;
+                                break;
                             case 1:
                                 budget = bmr * 1.375;
                                 break;
@@ -223,9 +185,49 @@ public class HomeFragment extends Fragment {
                         }
                         home_budget.setText(String.valueOf(Math.round(budget)));
 
-                        int remaining = (int) Math.round(((budget-consumed)+burn)/budget*100);
-                        progressBar.setProgress(remaining);
-                        home_remaining.setText(remaining+"%");
+                        //consumed
+                        Calendar day = Calendar.getInstance();
+                        day.set(Calendar.MILLISECOND, 0);
+                        day.set(Calendar.SECOND, 0);
+                        day.set(Calendar.MINUTE, 0);
+                        day.set(Calendar.HOUR_OF_DAY, 0);
+
+                        fStore.collection("users").document(userID)
+                                .collection("food").whereGreaterThan("dateTime",day.getTime())
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                consumed += document.getLong("totalCal");
+                                            }
+                                            home_cal_consumed.setText(String.valueOf(consumed));
+                                        }
+                                        //burn
+                                        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                                        DocumentReference burnRef = fStore
+                                                .collection("users").document(userID)
+                                                .collection("workout").document(date);
+
+                                        burnRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                                    if(documentSnapshot.exists()){
+                                                        burn = (int)Math.round(documentSnapshot.getDouble("burn"));
+                                                        home_cal_burn.setText(String.valueOf(burn));
+                                                    }
+                                                }
+                                                remaining = (int) Math.round(((budget-consumed)+burn)/budget*100);
+                                                Log.d("consumed",String.valueOf(consumed)+String.valueOf(burn)+String.valueOf(budget));
+                                                progressBar.setProgress(remaining);
+                                                home_remaining.setText(remaining+"%");
+                                            }
+                                        });
+                                    }
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -235,31 +237,14 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
-
         home_workout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), WorkoutPlan.class);
+                intent.putExtra("remainingCal",remaining);
                 startActivity(intent);
             }
         });
-
-
-//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//            @Override
-//            public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                Map<String,Object> foodMap = documentSnapshot.getData();
-//
-//
-//            }
-//        })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//
-//                    }
-//                });
-
 
        //Query
         Query query = fStore.collection("users").document(userID)
@@ -279,21 +264,33 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull HomeFragment.FoodViewHolder holder, int position, @NonNull Food model) {
-                Date date = model.getDateTime();
-                DateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy.mm.dd ");
-                String strDate = dateFormat.format(date);
-                DateFormat timeFormat = new SimpleDateFormat("hh:mm");
-                String strTime = timeFormat.format(date);
-                holder.time.setText(strTime);
-                holder.date.setText(strDate);
+                holder.food.setText(model.getFoodName());
                 holder.cal.setText(model.getTotalCal()+" cal");
+                if(model.isHealthy()){
+                    holder.healthy.setText("Healthy");
+                    holder.healthy.setTextColor(ContextCompat.getColor(getContext(),R.color.green));
+                }
+                else {
+                    holder.healthy.setText("Unhealthy");
+                    holder.healthy.setTextColor(ContextCompat.getColor(getContext(),R.color.red));
+                }
+                Date d = model.getDateTime();
+
+                DateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMM hh:mm a");
+                String strDate = dateFormat.format(d);
+                holder.time.setText(strDate);
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                        Intent intent = new Intent(getActivity(), FoodDetails.class);
-//                        intent.putExtra("foodDetails",model);
-//                        startActivity(intent);
-                        
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Food Details")
+                                .setMessage("\n\n"+"Date: "+strDate+"\n\n"
+                                        +"Food:"+model.getFoodName()+"\n\n"
+                                        +"Quantity: "+model.getQty()+"\n\n"
+                                        +"Total Cal: "+model.getTotalCal()+"\n\n"
+                                        +"Healthy: "+model.isHealthy()+"\n\n")
+                                .setNeutralButton("OK",null)
+                                .show();
                     }
                 });
             }
@@ -314,24 +311,29 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
+        if (adapter != null) {
+            adapter.startListening();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         adapter.startListening();
+
     }
 
     private class FoodViewHolder extends RecyclerView.ViewHolder {
         private TextView time;
         private TextView cal;
-        private TextView date;
+        private TextView food;
+        private TextView healthy;
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
-            time = itemView.findViewById(R.id.home_list_time);
+            time = itemView.findViewById(R.id.home_list_datetime);
             cal = itemView.findViewById(R.id.home_list_cal);
-            date = itemView.findViewById(R.id.home_list_date);
+            food = itemView.findViewById(R.id.home_list_food);
+            healthy = itemView.findViewById(R.id.home_list_healthy);
         }
     }
 }

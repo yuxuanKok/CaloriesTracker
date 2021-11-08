@@ -2,6 +2,7 @@ package com.example.caloriestracker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +34,7 @@ public class WorkoutStep extends AppCompatActivity {
     private FirebaseAuth fAuth;
     private FirebaseFirestore fStore;
     private String userID,collection, doc;
-    private int intensity, type;
+    private int intensity, type, remaining, time;
     private double BMR,totalBurn;
     private TextView step_title;
     private RecyclerView workoutRecyclerView;
@@ -56,6 +57,7 @@ public class WorkoutStep extends AppCompatActivity {
         if (extras != null) {
             intensity = extras.getInt("intensity");
             type = extras.getInt("type");
+            remaining=extras.getInt("remainingCal");
         }
 
         //to get user bmi and calories burn and calories consumed
@@ -126,12 +128,26 @@ public class WorkoutStep extends AppCompatActivity {
                                 }
                             }
 
+                            //based on the calories remaining decides the time
+                            if(remaining>=75){//75-100
+                                time = 15;
+                            }
+                            else if(remaining>=50 && remaining<75){//50-74
+                                time = 30;
+                            }
+                            else if(remaining>=25 && remaining<50){
+                                time = 45;
+                            }
+                            else if(remaining<24){
+                                time = 60;
+                            }
+
                             for(String item: list){
                                 String[] elements = item.split(",");
                                 String name = elements[0].replaceAll("[^a-zA-Z0-9]", " ");
                                 double met = Double.parseDouble(elements[1]);
                                 String description =  elements[2].replace("\\n","\n");
-                                Workout workout = new Workout(met,name,description.replace("]", ""),15);
+                                Workout workout = new Workout(met,name,description.replace("]", ""),time);
                                 workoutList.add(workout);
                             }
                             workoutRecyclerView.setLayoutManager(new LinearLayoutManager(WorkoutStep.this));
@@ -141,7 +157,6 @@ public class WorkoutStep extends AppCompatActivity {
 
                        }
                    });
-
 
 
         workout_done.setOnClickListener(new View.OnClickListener() {
@@ -185,6 +200,7 @@ public class WorkoutStep extends AppCompatActivity {
                     }
                 });
                 startActivity(new Intent(WorkoutStep.this,MainActivity.class));
+
             }
         });
     }

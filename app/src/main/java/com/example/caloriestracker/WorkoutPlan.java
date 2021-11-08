@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
@@ -13,11 +14,17 @@ import android.widget.NumberPicker;
 public class WorkoutPlan extends AppCompatActivity {
 
     private Button workout_intensity, workout_type, workout_confirm;
+    int remaining=100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_plan);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            remaining=extras.getInt("remainingCal");
+        }
 
         workout_intensity=findViewById(R.id.workout_intensity);
         workout_type=findViewById(R.id.workout_type);
@@ -44,9 +51,11 @@ public class WorkoutPlan extends AppCompatActivity {
                 if(notMissingValue){
                     int intensity = Integer.parseInt(workout_intensity.getTag().toString());
                     int type = Integer.parseInt(workout_type.getTag().toString());
+
                     Intent intent = new Intent(WorkoutPlan.this, WorkoutStep.class);
                     intent.putExtra("intensity",intensity);
                     intent.putExtra("type",type);
+                    intent.putExtra("remainingCal",remaining);
                     startActivity(intent);
                 }
 
