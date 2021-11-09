@@ -276,108 +276,127 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                         try {
                             String output = response.body().string().replace("(", "").replace(")","");
-                            String[] elements = output.split(",");
-                            foodDetails=new ArrayList<>();
 
-                            for (int i = 0; i<elements.length;i++){
-                                Food food = new Food();
-                                switch (elements[i].trim()){
-                                    case "1":
-                                        food.setFoodName("Bah Kut Teh");
-                                        break;
-                                    case "2":
-                                        food.setFoodName("Cendol");
-                                        break;
-                                    case "3":
-                                        food.setFoodName("Char Kway Teow");
-                                        break;
-                                    case "4":
-                                        food.setFoodName("Curry Puff");
-                                        break;
-                                    case "5":
-                                        food.setFoodName("Fried Rice");
-                                        break;
-                                    case "6":
-                                        food.setFoodName("Laksa");
-                                        break;
-                                    case "7":
-                                        food.setFoodName("Otak Otak");
-                                        break;
-                                    case "8":
-                                        food.setFoodName("Roti Canai");
-                                        break;
-                                    case "9":
-                                        food.setFoodName("Roti Tisu");
-                                        break;
-                                    case "10":
-                                        food.setFoodName("Chicken Satay");
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                food.setQty(1);
-                                foodDetails.add(food);
+                            if(output.equals("0")){
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                alertDialog.setTitle("Food Not Found")
+                                        .setMessage("\n\n"+"Here is the list of food cover in this app currently.\n\n" +
+                                                "1. Laksa\n\n2. Cendol\n\n3. Curry Puff\n\n4. Bah Kut Teh\n\n 5. Char Kway Teow" +
+                                                "\n\n6. Chicken Satay\n\n7. Fried Rice\n\n8. Otak-otak\n\n9. Roti Canai" +
+                                                "\n\n10. Roti Tisu\n\n")
+                                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                main_loading.setVisibility(View.INVISIBLE);
+                                                return;
+                                            }
+                                        })
+                                        .show();
                             }
+                            else{
+                                String[] elements = output.split(",");
+                                foodDetails=new ArrayList<>();
 
-                            ArrayList<Food> tempList = foodDetails;
-                            for (int i = 0; i < tempList.size(); i++) {
-                                for (int j = i+1; j < tempList.size(); j++) {
-                                    // compare list.get(i) and list.get(j)
-                                    if(tempList.get(i).getFoodName()==tempList.get(j).getFoodName()){
-                                        foodDetails.get(i).setQty(foodDetails.get(i).getQty()+1);
-                                        foodDetails.remove(j);
+                                for (int i = 0; i<elements.length;i++){
+                                    Food food = new Food();
+                                    switch (elements[i].trim()){
+                                        case "1":
+                                            food.setFoodName("Bah Kut Teh");
+                                            break;
+                                        case "2":
+                                            food.setFoodName("Cendol");
+                                            break;
+                                        case "3":
+                                            food.setFoodName("Char Kway Teow");
+                                            break;
+                                        case "4":
+                                            food.setFoodName("Curry Puff");
+                                            break;
+                                        case "5":
+                                            food.setFoodName("Fried Rice");
+                                            break;
+                                        case "6":
+                                            food.setFoodName("Laksa");
+                                            break;
+                                        case "7":
+                                            food.setFoodName("Otak Otak");
+                                            break;
+                                        case "8":
+                                            food.setFoodName("Roti Canai");
+                                            break;
+                                        case "9":
+                                            food.setFoodName("Roti Tisu");
+                                            break;
+                                        case "10":
+                                            food.setFoodName("Chicken Satay");
+                                            break;
+                                        default:
+                                            break;
                                     }
+                                    food.setQty(1);
+                                    foodDetails.add(food);
                                 }
-                            }
 
-                            main_loading.setVisibility(View.INVISIBLE);
-                            builderSingle = new AlertDialog.Builder(MainActivity.this);
-                            builderSingle.setTitle("Confirm Food");
-                            builderSingle.setView(image);
-
-                            String[] arr = new String[foodDetails.size()];
-                            for(int i=0 ; i< foodDetails.size();i++){
-                                arr[i] = foodDetails.get(i).getFoodName();
-                            }
-                            ArrayList<Food> foodsCheck = new ArrayList<>();
-                            builderSingle.setMultiChoiceItems(arr, null, new DialogInterface.OnMultiChoiceClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                    if(isChecked){
-                                        foodsCheck.add(foodDetails.get(which));
-                                    }
-                                    else {
-                                        foodsCheck.remove(foodDetails.get(which));
+                                ArrayList<Food> tempList = foodDetails;
+                                for (int i = 0; i < tempList.size(); i++) {
+                                    for (int j = i+1; j < tempList.size(); j++) {
+                                        // compare list.get(i) and list.get(j)
+                                        if(tempList.get(i).getFoodName()==tempList.get(j).getFoodName()){
+                                            foodDetails.get(i).setQty(foodDetails.get(i).getQty()+1);
+                                            foodDetails.remove(j);
+                                        }
                                     }
                                 }
-                            });
 
-                            builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if(!foodsCheck.isEmpty()){
-                                        Intent intent = new Intent(MainActivity.this, Quantity.class);
-                                        Bundle args = new Bundle();
-                                        args.putSerializable("ARRAYLIST",(Serializable)foodsCheck);
-                                        intent.putExtra("BUNDLE",args);
-                                        startActivity(intent);
+                                main_loading.setVisibility(View.INVISIBLE);
+                                builderSingle = new AlertDialog.Builder(MainActivity.this);
+                                builderSingle.setTitle("Confirm Food");
+                                builderSingle.setView(image);
+
+                                String[] arr = new String[foodDetails.size()];
+                                for(int i=0 ; i< foodDetails.size();i++){
+                                    arr[i] = foodDetails.get(i).getFoodName();
+                                }
+                                ArrayList<Food> foodsCheck = new ArrayList<>();
+                                builderSingle.setMultiChoiceItems(arr, null, new DialogInterface.OnMultiChoiceClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                        if(isChecked){
+                                            foodsCheck.add(foodDetails.get(which));
+                                        }
+                                        else {
+                                            foodsCheck.remove(foodDetails.get(which));
+                                        }
                                     }
-                                    else{
+                                });
+
+                                builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if(!foodsCheck.isEmpty()){
+                                            Intent intent = new Intent(MainActivity.this, Quantity.class);
+                                            Bundle args = new Bundle();
+                                            args.putSerializable("ARRAYLIST",(Serializable)foodsCheck);
+                                            intent.putExtra("BUNDLE",args);
+                                            startActivity(intent);
+                                        }
+                                        else{
+                                            FoodNotFound();//display alert dialog to show list of food cover currently
+                                        }
+
+                                    }
+                                });
+
+                                builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
                                         FoodNotFound();//display alert dialog to show list of food cover currently
                                     }
-
-                                }
-                            });
-
-                            builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    FoodNotFound();//display alert dialog to show list of food cover currently
-                                }
-                            });
-                            AlertDialog dialog = builderSingle.create();
-                            dialog.show();
+                                });
+                                AlertDialog dialog = builderSingle.create();
+                                dialog.show();
+                            }
 
                         } catch (IOException e) {
                             e.printStackTrace();
