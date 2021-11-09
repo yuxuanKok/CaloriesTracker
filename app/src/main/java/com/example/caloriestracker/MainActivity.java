@@ -355,11 +355,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(MainActivity.this, Quantity.class);
-                                    Bundle args = new Bundle();
-                                    args.putSerializable("ARRAYLIST",(Serializable)foodsCheck);
-                                    intent.putExtra("BUNDLE",args);
-                                    startActivity(intent);
+                                    if(!foodsCheck.isEmpty()){
+                                        Intent intent = new Intent(MainActivity.this, Quantity.class);
+                                        Bundle args = new Bundle();
+                                        args.putSerializable("ARRAYLIST",(Serializable)foodsCheck);
+                                        intent.putExtra("BUNDLE",args);
+                                        startActivity(intent);
+                                    }
+                                    else{
+                                        FoodNotFound();//display alert dialog to show list of food cover currently
+                                    }
+
                                 }
                             });
 
@@ -367,6 +373,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
+                                    FoodNotFound();//display alert dialog to show list of food cover currently
                                 }
                             });
                             AlertDialog dialog = builderSingle.create();
@@ -407,5 +414,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Log.v("permissionD","Permission: "+permissions[0]+ "was "+grantResults[0]);
             //resume tasks needing this permission
         }
+    }
+
+    public void FoodNotFound(){
+        AlertDialog.Builder FoodNotFound = new AlertDialog.Builder(MainActivity.this);
+        FoodNotFound.setTitle("Food Not Found? ")
+                .setMessage("\n\n"+"Here is the list of food cover in this app currently.\n\n" +
+                        "1. Laksa\n\n2. Cendol\n\n3. Curry Puff\n\n4. Bah Kut Teh\n\n 5. Char Kway Teow" +
+                        "\n\n6. Chicken Satay\n\n7. Fried Rice\n\n8. Otak-otak\n\n9. Roti Canai" +
+                        "\n\n10. Roti Tisu\n\n")
+                .setNeutralButton("OK",null)
+                .show();
     }
 }

@@ -46,10 +46,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
 
         fAuth=FirebaseAuth.getInstance();
 
-        if(fAuth.getCurrentUser()!=null){
-            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-            finish();
-        }
+//        if(fAuth.getCurrentUser()!=null){
+//            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+//            finish();
+//        }
 
         registerBtn.setOnClickListener(this);
         loginLink.setOnClickListener(this);
