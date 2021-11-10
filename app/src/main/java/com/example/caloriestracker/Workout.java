@@ -5,9 +5,9 @@ public class Workout {
     private Double MET;
     private String stepName;
     private String stepDesc;
-    private int time;
+    private double time;
 
-    public Workout(Double MET, String stepName, String stepDesc, int time) {
+    public Workout(Double MET, String stepName, String stepDesc, double time) {
         this.MET = MET;
         this.stepName = stepName;
         this.stepDesc = stepDesc;
@@ -38,11 +38,11 @@ public class Workout {
         this.stepDesc = stepDesc;
     }
 
-    public int getTime() {
+    public double getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    public void setTime(double time) {
         this.time = time;
     }
 }

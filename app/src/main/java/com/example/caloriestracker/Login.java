@@ -43,6 +43,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
         fAuth=FirebaseAuth.getInstance();
 
+        if(fAuth.getCurrentUser() != null){
+            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+        }
+
         loginBtn.setOnClickListener(this);
         login_register.setOnClickListener(this);
         login_forget_password.setOnClickListener(this);
