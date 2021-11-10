@@ -2,7 +2,6 @@ package com.example.caloriestracker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -79,7 +78,6 @@ public class WorkoutStep extends AppCompatActivity {
                 Toast.makeText(WorkoutStep.this,"Fail to get data",Toast.LENGTH_SHORT).show();
             }
         });
-        ////////////////////////////////////////////////////////////
 
         //get workout plan
         switch (intensity){

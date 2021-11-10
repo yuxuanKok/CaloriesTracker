@@ -1,6 +1,5 @@
 package com.example.caloriestracker.ui.home;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.icu.util.Calendar;
@@ -60,7 +59,6 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        //homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -76,59 +74,13 @@ public class HomeFragment extends Fragment {
         home_bmi=binding.homeBmi;
         home_workout=binding.homeWorkout;
 
-
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
+        userID = fAuth.getCurrentUser().getUid();
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, yyyy.MM.dd");
         String currentDateandTime = sdf.format(new Date());
         home_date.setText(currentDateandTime);
-
-        userID = fAuth.getCurrentUser().getUid();
-
-        //Recycler View
-//        ArrayList<Food> foodArrayList = new ArrayList<>();
-//        fStore.collection("users").document(userID)
-//                .collection("food").document(date)
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if(task.isSuccessful()){
-//                            DocumentSnapshot document = task.getResult();
-//                            if(document.exists()){
-//                                Map<String,Object> foodMap = document.getData();
-//                                for(Map.Entry<String, Object> entry : foodMap.entrySet()){
-//                                    Map<String,Object>details = (Map<String, Object>) entry.getValue();
-//                                    Food food = new Food();
-//                                    for(Map.Entry<String,Object> entryset: details.entrySet()){
-//                                        if(entryset.getKey().equals("foodName")){
-//                                            food.setFoodName(entryset.getValue().toString());
-//                                        }
-//                                        if(entryset.getKey().equals("dateTime")){
-//                                            food.setDateTime(entryset.getValue().toString());
-//                                        }
-//                                        if(entryset.getKey().equals("totalCal")){
-//                                            food.setTotalCal(Integer.parseInt(entryset.getValue().toString()));
-//                                            consumed+=Integer.parseInt(entryset.getValue().toString());
-//                                        }
-//                                        if(entryset.getKey().equals("qty")){
-//                                            food.setQty(Integer.parseInt(entryset.getValue().toString()));
-//                                        }
-//                                        if(entryset.getKey().equals("healthy")){
-//                                            food.setHealthy(Boolean.parseBoolean(entryset.getValue().toString()));
-//                                        }
-//                                    }
-//                                    foodArrayList.add(food);
-//                                    home_cal_consumed.setText(String.valueOf(consumed));
-//                                }
-//                            }
-//                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//                            recyclerAdapter = new RecyclerAdapter(foodArrayList,getContext());
-//                            recyclerView.setAdapter(recyclerAdapter);
-//                        }
-//                    }
-//                });
 
         //Dashboard
         fStore.collection("users").document(userID)
@@ -246,7 +198,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-       //Query
+       //Query for recyclerview
         Query query = fStore.collection("users").document(userID)
                 .collection("food").orderBy("dateTime", Query.Direction.DESCENDING);
         //Recycler Option

@@ -25,10 +25,10 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class Login extends AppCompatActivity implements View.OnClickListener {
 
-    EditText login_email,login_password;
-    TextView login_register,login_forget_password;
-    Button loginBtn;
-    FirebaseAuth fAuth;
+    private EditText login_email,login_password;
+    private TextView login_register,login_forget_password;
+    private Button loginBtn;
+    private FirebaseAuth fAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,12 +114,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     }
                 });
 
-                resetPswdDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // close dialog
-                    }
-                });
+                resetPswdDialog.setNegativeButton("No", null);
 
                 resetPswdDialog.create().show();
 

@@ -18,20 +18,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
 public class Register extends AppCompatActivity implements View.OnClickListener {
 
-    EditText register_email,register_pswd, register_confirm_pswd;
-    Button registerBtn;
-    TextView loginLink;
-    FirebaseAuth fAuth;
+    private EditText register_email,register_pswd, register_confirm_pswd;
+    private Button registerBtn;
+    private TextView loginLink;
+    private FirebaseAuth fAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +40,6 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
         loginLink=findViewById(R.id.register_login);
 
         fAuth=FirebaseAuth.getInstance();
-
-//        if(fAuth.getCurrentUser()!=null){
-//            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-//            finish();
-//        }
 
         registerBtn.setOnClickListener(this);
         loginLink.setOnClickListener(this);

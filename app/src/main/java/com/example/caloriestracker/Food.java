@@ -1,9 +1,6 @@
 package com.example.caloriestracker;
 
-import com.google.type.DateTime;
-
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Food implements Serializable {
