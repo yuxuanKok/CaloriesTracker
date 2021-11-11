@@ -147,7 +147,7 @@ public class WorkoutStep extends AppCompatActivity {
                                 double met = Double.parseDouble(elements[1]);
                                 String description =  elements[2].replace("\\n","\n");
                                 double time = Double.parseDouble(elements[3].replace("]",""));
-                                Workout workout = new Workout(met,name,description.replace("]", ""),time*percentageTime*60);
+                                Workout workout = new Workout(met,name,description.replace("]", ""),time*percentageTime);
                                 workoutList.add(workout);
                             }
                             workoutRecyclerView.setLayoutManager(new LinearLayoutManager(WorkoutStep.this));
