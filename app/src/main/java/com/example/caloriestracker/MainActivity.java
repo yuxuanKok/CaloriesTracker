@@ -1,6 +1,7 @@
 package com.example.caloriestracker;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,8 +17,14 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -36,6 +43,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -98,8 +106,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Uri uri = data.getData();
             selectedImagePath = getPath(getApplicationContext(), uri);
             connectServer();
-            image = new ImageView(this);
-            image.setImageURI(uri);
+
+            image = new ImageView(getApplicationContext());
+            try {
+                image.setImageBitmap(decodeUri(getApplicationContext(),uri,300 ));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
@@ -204,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public void connectServer() {
 
-        String postUrl= "http://"+"192.168.68.103"+":"+"5000"+"/";
+        String postUrl= "http://"+"192.168.68.104"+":"+"5000"+"/";
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -333,6 +347,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 builderSingle = new AlertDialog.Builder(MainActivity.this);
                                 builderSingle.setTitle("Confirm Food");
                                 builderSingle.setView(image);
+                                
 
                                 String[] arr = new String[foodDetails.size()];
                                 for(int i=0 ; i< foodDetails.size();i++){
@@ -425,5 +440,28 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         "\n\n10. Roti Tisu\n\n")
                 .setNeutralButton("OK",null)
                 .show();
+    }
+
+    public static Bitmap decodeUri(Context c, Uri uri, final int requiredSize)
+            throws FileNotFoundException {
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o);
+
+        int width_tmp = o.outWidth
+                , height_tmp = o.outHeight;
+        int scale = 1;
+
+        while(true) {
+            if(width_tmp / 2 < requiredSize || height_tmp / 2 < requiredSize)
+                break;
+            width_tmp /= 2;
+            height_tmp /= 2;
+            scale *= 2;
+        }
+
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        return BitmapFactory.decodeStream(c.getContentResolver().openInputStream(uri), null, o2);
     }
 }
