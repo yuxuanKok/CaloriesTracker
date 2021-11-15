@@ -240,7 +240,8 @@ public class HomeFragment extends Fragment {
                                         +"Food:"+model.getFoodName()+"\n\n"
                                         +"Quantity: "+model.getQty()+"\n\n"
                                         +"Total Cal: "+model.getTotalCal()+"\n\n"
-                                        +"Healthy: "+model.isHealthy()+"\n\n")
+                                        +"Healthy: "+model.isHealthy()+"\n\n"
+                                        +"Reason: " + model.getReason()+"\n\n")
                                 .setNeutralButton("OK",null)
                                 .show();
                     }

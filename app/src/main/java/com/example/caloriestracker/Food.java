@@ -9,15 +9,17 @@ public class Food implements Serializable {
     Date dateTime;
     int totalCal;
     boolean healthy;
+    String reason;
 
     public Food(){}
 
-    public Food(String foodName, int totalCal, int qty, boolean healthy, Date dateTime) {
+    public Food(String foodName, int totalCal, int qty, boolean healthy, Date dateTime, String reason) {
         this.foodName = foodName;
         this.totalCal = totalCal;
         this.qty = qty;
         this.healthy = healthy;
         this.dateTime = dateTime;
+        this.reason = reason;
     }
 
     public String getFoodName() {
@@ -58,5 +60,13 @@ public class Food implements Serializable {
 
     public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

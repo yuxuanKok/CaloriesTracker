@@ -73,6 +73,7 @@ public class Quantity extends AppCompatActivity {
                             docData.put("totalCal",documentSnapshot.getLong("cal").intValue()*item.getQty());
                             docData.put("qty",item.getQty());
                             docData.put("healthy",documentSnapshot.getBoolean("healthy"));
+                            docData.put("reason", documentSnapshot.get("reason"));
 
                             Log.d("foodname",item.getFoodName());
                             foodRef.set(docData).addOnSuccessListener(new OnSuccessListener<Void>() {
