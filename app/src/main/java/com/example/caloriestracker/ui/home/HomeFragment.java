@@ -227,9 +227,9 @@ public class HomeFragment extends Fragment {
                     holder.healthy.setTextColor(ContextCompat.getColor(getContext(),R.color.red));
                 }
                 Date d = model.getDateTime();
-
                 DateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMM hh:mm a");
-                String strDate = dateFormat.format(d);
+                String strDate;
+                strDate = dateFormat.format(d);
                 holder.time.setText(strDate);
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -264,16 +264,15 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (adapter != null) {
+//        if (adapter != null) {
             adapter.startListening();
-        }
+//        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         adapter.startListening();
-
     }
 
     private class FoodViewHolder extends RecyclerView.ViewHolder {
