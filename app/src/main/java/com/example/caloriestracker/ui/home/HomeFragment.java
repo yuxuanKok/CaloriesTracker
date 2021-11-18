@@ -226,17 +226,23 @@ public class HomeFragment extends Fragment {
                     holder.healthy.setText("Unhealthy");
                     holder.healthy.setTextColor(ContextCompat.getColor(getContext(),R.color.red));
                 }
-                Date d = model.getDateTime();
-                DateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMM hh:mm a");
-                String strDate;
-                strDate = dateFormat.format(d);
-                holder.time.setText(strDate);
+                try{
+                    Date d=model.getDateTime();
+                    DateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMM hh:mm a");
+                    String strDate = dateFormat.format(d);
+
+                    holder.time.setText(strDate);
+                }catch (Exception e){
+                    Log.d("qqqq",e.toString());
+                    holder.time.setText("Please wait...");
+                }
+
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         builder.setTitle("Food Details")
-                                .setMessage("\n\n"+"Date: "+strDate+"\n\n"
+                                .setMessage("\n\n"+"Date: "+"strDate"+"\n\n"
                                         +"Food:"+model.getFoodName()+"\n\n"
                                         +"Quantity: "+model.getQty()+"\n\n"
                                         +"Total Cal: "+model.getTotalCal()+"\n\n"
